@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SummIT — En Breve</title>
+  
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/circuits.css">
+  
+  <style>
+    .message-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(26, 10, 46, 0.6);
+      border: 1px solid rgba(242, 169, 59, 0.3);
+      padding: 5vh 8vw;
+      border-radius: 20px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(242, 169, 59, 0.1);
+      z-index: 10;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+      100% { transform: translateY(0px); }
+    }
+
+    .main-title {
+      font-size: clamp(50px, 8vw, 150px);
+      font-weight: 800;
+      color: var(--gold-bright);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 2vh;
+      text-shadow: var(--glow-gold);
+    }
+
+    .subtitle {
+      font-size: clamp(20px, 2.5vw, 40px);
+      font-weight: 600;
+      color: var(--text-white);
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene-container">
+    <div class="circuits-layer looping-bg"></div>
+    <div class="particles-layer"></div>
+    
+    <div class="content-layer">
+      <div class="message-container">
+        <h1 class="main-title">EN BREVE</h1>
+        <h2 class="subtitle">SummIT Duoc UC Puerto Montt</h2>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/vendor/gsap.min.js"></script>
+  <script src="../assets/js/circuits-bg.js"></script>
+  <script>
+    const circuits = new CircuitsBG('.circuits-layer', { theme: 'gold' });
+    circuits.setStatic(); // Inicia con los circuitos ya dibujados
+    
+    // Disparar datos aleatorios continuamente
+    setInterval(() => circuits.triggerDataFlow(), 2000);
+
+    // Partículas flotantes en loop
+    const container = document.querySelector('.particles-layer');
+    for (let i = 0; i < 40; i++) {
+      const p = document.createElement('div');
+      const size = Math.random() * 5 + 2;
+      p.style.cssText = `position: absolute; width: ${size}px; height: ${size}px; background: var(--gold-bright); border-radius: 50%; filter: drop-shadow(var(--glow-gold)); pointer-events: none; left: ${Math.random() * 100}%; top: ${100 + Math.random() * 20}%; opacity: ${Math.random() * 0.5 + 0.2};`;
+      container.appendChild(p);
+      
+      gsap.to(p, {
+        y: '-120vh',
+        x: `+=${Math.random() * 100 - 50}`,
+        duration: Math.random() * 10 + 8,
+        delay: Math.random() * -15,
+        repeat: -1,
+        ease: 'none'
+      });
+    }
+  </script>
+</body>
+</html>

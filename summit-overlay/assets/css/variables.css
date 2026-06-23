@@ -1,0 +1,28 @@
+:root {
+  /* Fondo */
+  --bg-purple-dark: #1a0a2e;
+  --bg-purple-mid: #3d1a5c;
+  --bg-purple-light: #5c2a7a;
+
+  /* Acentos dorados */
+  --gold-bright: #ffce6b;
+  --gold-base: #f2a93b;
+  --gold-dark: #c9821f;
+
+  /* Magenta (bloques de contenido) */
+  --magenta-base: #b91d73;
+  --magenta-dark: #8a1356;
+
+  /* Texto */
+  --text-white: #ffffff;
+  --text-light: #f0e6f5;
+
+  /* Glow / circuitos */
+  --circuit-line: rgba(242, 169, 59, 0.35);
+  --circuit-node: #f2a93b;
+  --glow-gold: 0 0 20px rgba(242, 169, 59, 0.6);
+  --glow-magenta: 0 0 25px rgba(185, 29, 115, 0.5);
+
+  /* Fuentes */
+  --font-family: 'Outfit', sans-serif;
+}

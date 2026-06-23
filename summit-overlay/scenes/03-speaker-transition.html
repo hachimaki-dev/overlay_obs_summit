@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SummIT — Transición Speaker</title>
+  
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/circuits.css">
+  
+  <style>
+    .transition-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      gap: 5vw;
+      padding: 0 10vw;
+    }
+
+    .photo-wrapper {
+      position: relative;
+      width: clamp(200px, 20vw, 350px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      padding: 8px;
+      background: linear-gradient(135deg, var(--gold-bright), var(--magenta-base));
+      box-shadow: var(--glow-gold), 0 10px 30px rgba(0,0,0,0.5);
+      transform: scale(0);
+      opacity: 0;
+    }
+
+    .speaker-photo {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background-color: var(--bg-purple-mid);
+      /* CSS Sprite Technique: The images are mapped via JavaScript based on the index */
+      background-repeat: no-repeat;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      font-weight: 800;
+      color: var(--gold-bright);
+    }
+
+    .text-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .up-next {
+      font-size: clamp(16px, 1.5vw, 24px);
+      font-weight: 700;
+      color: var(--magenta-base);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 1vh;
+      opacity: 0;
+      transform: translateX(30px);
+    }
+
+    .speaker-name {
+      font-size: clamp(40px, 4.5vw, 80px);
+      font-weight: 800;
+      color: var(--text-white);
+      margin-bottom: 0.5vh;
+      opacity: 0;
+      transform: translateX(30px);
+    }
+
+    .speaker-title {
+      font-size: clamp(20px, 2vw, 36px);
+      font-weight: 600;
+      color: var(--gold-bright);
+      margin-bottom: 3vh;
+      opacity: 0;
+      transform: translateX(30px);
+    }
+
+    .speaker-talk {
+      font-size: clamp(18px, 1.8vw, 32px);
+      font-weight: 400;
+      color: var(--text-light);
+      border-left: 4px solid var(--magenta-base);
+      padding-left: 1.5vw;
+      line-height: 1.4;
+      opacity: 0;
+      transform: translateX(30px);
+      max-width: 90%;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene-container">
+    <div class="circuits-layer"></div>
+    <div class="particles-layer"></div>
+    
+    <div class="content-layer">
+      <div class="transition-container">
+        
+        <div class="photo-wrapper">
+          <div class="speaker-photo" id="speakerPhoto"></div>
+        </div>
+        
+        <div class="text-container">
+          <div class="up-next">A continuación</div>
+          <div class="speaker-name" id="speakerName">Cargando...</div>
+          <div class="speaker-title" id="speakerTitle"></div>
+          <div class="speaker-talk" id="speakerTalk"></div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/vendor/gsap.min.js"></script>
+  <script src="../assets/js/circuits-bg.js"></script>
+  <script src="../assets/js/utils.js"></script>
+  <script>
+    // Mapas de recortes CSS Sprite para las fotos en los afiches
+    // Ajusta background-position y size si el encuadre de la cara no es exacto
+    const spriteMap = {
+      0: { img: '../../imagenes/speakers1.png', size: '300%', pos: '15% 55%' }, // Paolo
+      1: { img: '../../imagenes/speakers1.png', size: '300%', pos: '85% 85%' }, // Sergio
+      2: { img: '../../imagenes/speakers2.png', size: '300%', pos: '15% 55%' }, // Nicolás
+      3: { img: '../../imagenes/speakers2.png', size: '300%', pos: '85% 85%' }  // Álvaro
+    };
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const circuits = new CircuitsBG('.circuits-layer', { theme: 'gold' });
+      circuits.setStatic();
+      
+      // Obtener qué speaker mostrar (por defecto 0)
+      const indexParam = Utils.getQueryParam('index') || '0';
+      const index = parseInt(indexParam, 10);
+      
+      const speakers = await Utils.getSpeakers();
+      if (speakers && speakers[index]) {
+        const sp = speakers[index];
+        document.getElementById('speakerName').innerText = sp.name;
+        document.getElementById('speakerTitle').innerText = sp.title;
+        document.getElementById('speakerTalk').innerText = `"${sp.talk}"`;
+        
+        // Aplicar el recorte de imagen
+        const photoEl = document.getElementById('speakerPhoto');
+        if (spriteMap[index]) {
+          photoEl.style.backgroundImage = `url('${spriteMap[index].img}')`;
+          photoEl.style.backgroundSize = spriteMap[index].size;
+          photoEl.style.backgroundPosition = spriteMap[index].pos;
+        } else {
+          // Fallback a iniciales si no hay imagen mapeada
+          photoEl.innerText = Utils.getInitials(sp.name);
+        }
+      }
+
+      // Animación GSAP de entrada
+      const tl = gsap.timeline();
+      
+      tl.to('.photo-wrapper', {
+        scale: 1,
+        opacity: 1,
+        duration: 1.2,
+        ease: 'elastic.out(1, 0.6)'
+      });
+      
+      tl.to('.up-next', { opacity: 1, x: 0, duration: 0.6, ease: 'power2.out' }, '-=0.8');
+      tl.to('.speaker-name', { opacity: 1, x: 0, duration: 0.6, ease: 'power2.out' }, '-=0.5');
+      tl.to('.speaker-title', { opacity: 1, x: 0, duration: 0.6, ease: 'power2.out' }, '-=0.5');
+      tl.to('.speaker-talk', { opacity: 1, x: 0, duration: 0.8, ease: 'power2.out' }, '-=0.4');
+
+      // Auto fade-out a los 8 segundos
+      const durationParam = parseInt(Utils.getQueryParam('duration') || '8000', 10);
+      Utils.setupSceneAutoFadeOut(durationParam);
+    });
+  </script>
+</body>
+</html>

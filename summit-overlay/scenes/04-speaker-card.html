@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SummIT — Speaker Card</title>
+  
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/circuits.css">
+  
+  <style>
+    .card-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(26, 10, 46, 0.7);
+      border: 1px solid rgba(242, 169, 59, 0.4);
+      border-radius: 30px;
+      padding: 6vh 6vw;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 15px 50px rgba(0,0,0,0.6), inset 0 0 40px rgba(185, 29, 115, 0.2);
+      max-width: 80%;
+      z-index: 10;
+      animation: gentle-float 8s ease-in-out infinite;
+    }
+
+    @keyframes gentle-float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0px); }
+    }
+
+    .photo-wrapper {
+      position: relative;
+      width: clamp(250px, 25vw, 400px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      padding: 10px;
+      background: linear-gradient(135deg, var(--gold-bright), var(--magenta-base));
+      box-shadow: var(--glow-gold);
+      margin-bottom: 4vh;
+      animation: pulse-border 4s infinite alternate;
+    }
+
+    @keyframes pulse-border {
+      0% { box-shadow: 0 0 15px rgba(242, 169, 59, 0.6); }
+      100% { box-shadow: 0 0 35px rgba(242, 169, 59, 0.9); }
+    }
+
+    .speaker-photo {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background-color: var(--bg-purple-mid);
+      background-repeat: no-repeat;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      font-weight: 800;
+      color: var(--gold-bright);
+    }
+
+    .speaker-name {
+      font-size: clamp(45px, 5vw, 100px);
+      font-weight: 800;
+      color: var(--text-white);
+      margin-bottom: 0.5vh;
+      text-align: center;
+    }
+
+    .speaker-title {
+      font-size: clamp(24px, 2.5vw, 45px);
+      font-weight: 600;
+      color: var(--gold-bright);
+      margin-bottom: 3vh;
+      text-align: center;
+      letter-spacing: 0.05em;
+    }
+
+    .speaker-talk {
+      font-size: clamp(20px, 2.2vw, 40px);
+      font-weight: 400;
+      color: var(--text-light);
+      background: rgba(185, 29, 115, 0.3);
+      padding: 2vh 3vw;
+      border-radius: 15px;
+      text-align: center;
+      border-left: 5px solid var(--magenta-base);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene-container">
+    <div class="circuits-layer looping-bg"></div>
+    <div class="particles-layer"></div>
+    
+    <div class="content-layer">
+      <div class="card-container">
+        <div class="photo-wrapper">
+          <div class="speaker-photo" id="speakerPhoto"></div>
+        </div>
+        <div class="speaker-name" id="speakerName">Cargando...</div>
+        <div class="speaker-title" id="speakerTitle"></div>
+        <div class="speaker-talk" id="speakerTalk"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/vendor/gsap.min.js"></script>
+  <script src="../assets/js/circuits-bg.js"></script>
+  <script src="../assets/js/utils.js"></script>
+  <script>
+    const spriteMap = {
+      0: { img: '../../imagenes/speakers1.png', size: '300%', pos: '15% 55%' },
+      1: { img: '../../imagenes/speakers1.png', size: '300%', pos: '85% 85%' },
+      2: { img: '../../imagenes/speakers2.png', size: '300%', pos: '15% 55%' },
+      3: { img: '../../imagenes/speakers2.png', size: '300%', pos: '85% 85%' }
+    };
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const circuits = new CircuitsBG('.circuits-layer', { theme: 'gold' });
+      circuits.setStatic();
+      setInterval(() => circuits.triggerDataFlow(), 3000);
+      
+      const index = parseInt(Utils.getQueryParam('index') || '0', 10);
+      const speakers = await Utils.getSpeakers();
+      
+      if (speakers && speakers[index]) {
+        const sp = speakers[index];
+        document.getElementById('speakerName').innerText = sp.name;
+        document.getElementById('speakerTitle').innerText = sp.title;
+        document.getElementById('speakerTalk').innerText = `"${sp.talk}"`;
+        
+        const photoEl = document.getElementById('speakerPhoto');
+        if (spriteMap[index]) {
+          photoEl.style.backgroundImage = `url('${spriteMap[index].img}')`;
+          photoEl.style.backgroundSize = spriteMap[index].size;
+          photoEl.style.backgroundPosition = spriteMap[index].pos;
+        } else {
+          photoEl.innerText = Utils.getInitials(sp.name);
+        }
+      }
+
+      // Animación inicial GSAP
+      gsap.from('.card-container', {
+        y: 100,
+        opacity: 0,
+        duration: 1.5,
+        ease: 'power3.out'
+      });
+    });
+  </script>
+</body>
+</html>

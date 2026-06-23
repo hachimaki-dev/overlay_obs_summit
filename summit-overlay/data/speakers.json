@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Paolo Colonnello",
+    "title": "CEO de DIIO",
+    "talk": "Preparándose para el trabajo en el mundo de la IA",
+    "time": "9:20"
+  },
+  {
+    "name": "Sergio Azócar",
+    "title": "Founding Skyward Engineer",
+    "talk": "Context Architecture: Cómo diseñar código para personas y agentes de IA",
+    "time": "9:45"
+  },
+  {
+    "name": "Nicolás Beghelli",
+    "title": "Cofounder Minverso",
+    "talk": "La fábrica del futuro: IA, metaverso y gemelos digitales aplicados a la industria",
+    "time": "10:35"
+  },
+  {
+    "name": "Álvaro Pérez-Nur",
+    "title": "Gerente MOWI Chile",
+    "talk": "Smart Farming 4.0: Cómo la IA está redefiniendo la acuicultura moderna",
+    "time": "10:55"
+  }
+]

@@ -1,0 +1,138 @@
+/* Importación de Google Fonts (con soporte para fallback local) */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap');
+
+/* Fallback local / Soporte offline:
+   Si el operador descarga las fuentes .woff2 en /assets/fonts/ se pueden registrar aquí.
+*/
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Outfit Regular'), local('Outfit-Regular'), url('../fonts/Outfit-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Outfit Bold'), local('Outfit-Bold'), url('../fonts/Outfit-Bold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: local('Outfit ExtraBold'), local('Outfit-ExtraBold'), url('../fonts/Outfit-ExtraBold.woff2') format('woff2');
+}
+
+/* Soporte para interpolación de color OKLCH en navegadores modernos */
+:root {
+  --in-oklch: ;
+  --in-oklab: ;
+}
+
+@supports (linear-gradient(in oklch, white, black)) {
+  :root {
+    --in-oklch: in oklch;
+    --in-oklab: in oklab;
+  }
+}
+
+/* Reset Base para Browser Sources de OBS */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: transparent; /* Muy importante para transparencia en OBS */
+  font-family: var(--font-family);
+  color: var(--text-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Contenedor principal de Escena (Pantalla Completa 16:9) */
+.scene-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  /* Degradado de fondo por defecto cuando no se usa transparencia (ej: en pantallas completas) */
+  background: radial-gradient(circle at center var(--in-oklch), var(--bg-purple-mid), var(--bg-purple-dark));
+}
+
+/* Modificador para escenas que requieren transparencia absoluta */
+.scene-container.transparent-bg {
+  background: transparent !important;
+}
+
+/* Capa de circuitos de fondo */
+.circuits-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Capa de partículas */
+.particles-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Capa de contenido en primer plano */
+.content-layer {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Estilos de Tipografía Comunes */
+h1, h2, h3, h4, p {
+  margin: 0;
+  padding: 0;
+}
+
+.title-glow {
+  text-shadow: var(--glow-gold);
+}
+
+.text-magenta {
+  color: var(--magenta-base);
+  text-shadow: var(--glow-magenta);
+}
+
+.text-gold {
+  color: var(--gold-bright);
+  text-shadow: var(--glow-gold);
+}
+
+/* Animación global de salida (Fade out) para OBS */
+.fade-out-active {
+  transition: opacity 1s ease-out;
+  opacity: 0 !important;
+}

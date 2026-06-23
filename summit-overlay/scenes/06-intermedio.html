@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SummIT — Intermedio</title>
+  
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/circuits.css">
+  
+  <style>
+    .message-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(61, 26, 92, 0.7);
+      border: 1px solid rgba(185, 29, 115, 0.4);
+      padding: 6vh 8vw;
+      border-radius: 20px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 0 30px rgba(185, 29, 115, 0.2);
+      z-index: 10;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+
+    .main-title {
+      font-size: clamp(40px, 6vw, 100px);
+      font-weight: 800;
+      color: var(--magenta-base);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 2vh;
+      text-shadow: var(--glow-magenta);
+      text-align: center;
+    }
+
+    .subtitle {
+      font-size: clamp(18px, 2.2vw, 36px);
+      font-weight: 600;
+      color: var(--text-light);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene-container">
+    <div class="circuits-layer looping-bg"></div>
+    <div class="particles-layer"></div>
+    
+    <div class="content-layer">
+      <div class="message-container">
+        <h1 class="main-title">Regresamos en breve</h1>
+        <h2 class="subtitle">Disfruta de este Coffee Break ☕</h2>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/vendor/gsap.min.js"></script>
+  <script src="../assets/js/circuits-bg.js"></script>
+  <script>
+    // Usamos el tema magenta para diferenciar el intermedio
+    const circuits = new CircuitsBG('.circuits-layer', { theme: 'magenta' });
+    circuits.setStatic();
+    setInterval(() => circuits.triggerDataFlow(), 1500);
+
+    const container = document.querySelector('.particles-layer');
+    for (let i = 0; i < 30; i++) {
+      const p = document.createElement('div');
+      const size = Math.random() * 6 + 2;
+      // Mezcla de partículas magenta y blancas
+      const color = Math.random() > 0.5 ? 'var(--magenta-base)' : 'var(--text-light)';
+      p.style.cssText = `position: absolute; width: ${size}px; height: ${size}px; background: ${color}; border-radius: 50%; filter: drop-shadow(var(--glow-magenta)); pointer-events: none; left: ${Math.random() * 100}%; top: ${100 + Math.random() * 20}%; opacity: ${Math.random() * 0.4 + 0.1};`;
+      container.appendChild(p);
+      
+      gsap.to(p, {
+        y: '-120vh',
+        x: `+=${Math.random() * 80 - 40}`,
+        duration: Math.random() * 12 + 6,
+        delay: Math.random() * -10,
+        repeat: -1,
+        ease: 'none'
+      });
+    }
+  </script>
+</body>
+</html>

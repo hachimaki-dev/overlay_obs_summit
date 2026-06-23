@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SummIT 5ta Versión — Intro</title>
+  
+  <!-- Hojas de estilo compartidas -->
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/circuits.css">
+  
+  <style>
+    /* Estilos específicos de la escena de Introducción */
+    
+    .version-badge {
+      font-size: clamp(12px, 1.2vw, 24px);
+      font-weight: 700;
+      letter-spacing: 0.6em;
+      color: var(--gold-bright);
+      text-transform: uppercase;
+      margin-bottom: 2vh;
+      opacity: 0;
+      transform: translateY(-20px);
+      filter: drop-shadow(var(--glow-gold));
+    }
+    
+    .logo-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4vh;
+      perspective: 1000px;
+    }
+    
+    .logo-summ {
+      font-size: clamp(40px, 7vw, 140px);
+      font-weight: 800;
+      color: var(--text-white);
+      letter-spacing: -0.03em;
+      opacity: 0;
+      transform: translateX(-50px);
+      text-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    }
+    
+    /* Recreación vectorial/CSS del chip "IT" con textura de pines */
+    .logo-it-chip {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg var(--in-oklch), var(--gold-bright), var(--gold-base) 60%, var(--gold-dark));
+      border: 3px solid var(--gold-dark);
+      border-radius: clamp(8px, 1vw, 20px);
+      padding: 0.5vw 2.5vw;
+      height: clamp(60px, 9vw, 180px);
+      margin-left: 1.2vw;
+      box-shadow: 
+        var(--glow-gold),
+        inset 0 4px 10px rgba(255, 255, 255, 0.6),
+        0 10px 20px rgba(0, 0, 0, 0.5);
+      transform: scale(0) rotateY(90deg);
+      transform-origin: center;
+      z-index: 10;
+    }
+    
+    .logo-it-text {
+      font-size: clamp(35px, 6.2vw, 120px);
+      font-weight: 800;
+      color: var(--bg-purple-dark);
+      letter-spacing: -0.01em;
+      user-select: none;
+      /* Simulación de grabado láser */
+      text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8), 0 -1px 1px rgba(0, 0, 0, 0.6);
+    }
+    
+    /* Pines del circuito integrado */
+    .chip-pins {
+      display: flex;
+      justify-content: space-around;
+      width: 76%;
+      position: absolute;
+      left: 12%;
+    }
+    
+    .chip-pins.top-pins {
+      top: clamp(-10px, -0.8vw, -5px);
+    }
+    
+    .chip-pins.bottom-pins {
+      bottom: clamp(-10px, -0.8vw, -5px);
+    }
+    
+    .pin {
+      width: clamp(4px, 0.4vw, 10px);
+      height: clamp(8px, 0.8vw, 16px);
+      background: linear-gradient(to bottom, #ffffff, #b0b0b0 50%, #606060);
+      border-radius: 1px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+      transform: scaleY(0);
+      transform-origin: center;
+    }
+    
+    .chip-pins.top-pins .pin {
+      transform-origin: bottom;
+    }
+    
+    .chip-pins.bottom-pins .pin {
+      transform-origin: top;
+    }
+    
+    .tagline {
+      font-size: clamp(18px, 2.5vw, 48px);
+      font-weight: 700;
+      color: var(--text-light);
+      letter-spacing: 0.05em;
+      margin-bottom: 4vh;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    
+    .location-badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: clamp(12px, 1.2vw, 24px);
+      font-weight: 600;
+      color: var(--text-light);
+      background: rgba(61, 26, 92, 0.45);
+      border: 1.5px solid rgba(242, 169, 59, 0.25);
+      padding: 0.8vh 2.2vw;
+      border-radius: 50px;
+      backdrop-filter: blur(12px);
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 2px rgba(255, 255, 255, 0.1);
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    
+    .location-badge span {
+      margin-right: 0.6vw;
+      filter: drop-shadow(var(--glow-gold));
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene-container">
+    
+    <!-- Capa de circuitos de fondo -->
+    <div class="circuits-layer"></div>
+    
+    <!-- Capa de partículas flotantes -->
+    <div class="particles-layer"></div>
+    
+    <!-- Capa de contenido de marca -->
+    <div class="content-layer">
+      
+      <!-- Versión del evento -->
+      <div class="version-badge">5ta Versión</div>
+      
+      <!-- Logo SummIT -->
+      <div class="logo-wrapper">
+        <span class="logo-summ">Summ</span>
+        <div class="logo-it-chip">
+          <!-- Pines superiores -->
+          <div class="chip-pins top-pins">
+            <div class="pin"></div>
+            <div class="pin"></div>
+            <div class="pin"></div>
+            <div class="pin"></div>
+          </div>
+          
+          <span class="logo-it-text">IT</span>
+          
+          <!-- Pines inferiores -->
+          <div class="chip-pins bottom-pins">
+            <div class="pin"></div>
+            <div class="pin"></div>
+            <div class="pin"></div>
+            <div class="pin"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Lema -->
+      <h1 class="tagline">
+        Inteligencia Artificial <span class="text-magenta">Aplicada</span>
+      </h1>
+      
+      <!-- Ubicación y Organización -->
+      <div class="location-badge">
+        <span>📍</span> Puerto Montt — Duoc UC
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/vendor/gsap.min.js"></script>
+  <script src="../assets/js/circuits-bg.js"></script>
+  <script src="../assets/js/utils.js"></script>
+  <script>
+    // Inicializar el fondo de circuitos
+    const circuits = new CircuitsBG('.circuits-layer', { theme: 'mixed' });
+    
+    // Función para crear partículas
+    function generateIntroParticles() {
+      const container = document.querySelector('.particles-layer');
+      const count = 30;
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = Math.random() * 4 + 2; // 2px a 6px
+        p.style.position = 'absolute';
+        p.style.width = `${size}px`;
+        p.style.height = `${size}px`;
+        p.style.backgroundColor = 'var(--gold-bright)';
+        p.style.borderRadius = '50%';
+        p.style.filter = 'drop-shadow(var(--glow-gold))';
+        p.style.pointerEvents = 'none';
+        
+        // Posiciones iniciales aleatorias distribuidas en pantalla
+        p.style.left = `${Math.random() * 100}%`;
+        p.style.top = `${100 + Math.random() * 10}%`; // Empezar abajo de la pantalla
+        
+        container.appendChild(p);
+        
+        // Animación vertical continua
+        gsap.to(p, {
+          y: '-115vh',
+          x: `+=${Math.random() * 80 - 40}`,
+          opacity: Math.random() * 0.7 + 0.3,
+          duration: Math.random() * 8 + 5,
+          delay: Math.random() * -10, // Para que ya haya partículas flotando
+          repeat: -1,
+          ease: 'power1.out'
+        });
+      }
+    }
+
+    // Esperar a que cargue el documento
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1. Generar partículas de fondo
+      generateIntroParticles();
+      
+      // 2. Crear línea de tiempo maestra
+      const mainTl = gsap.timeline();
+      
+      // A) Dibujar circuitos de fondo (duración total aprox 2.5s)
+      circuits.animateDraw(mainTl, 2.5);
+      
+      // B) Entrada de "5ta Versión" (se solapa con el dibujo del circuito)
+      mainTl.to('.version-badge', {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        ease: 'power2.out'
+      }, '-=1.5');
+      
+      // C) Entrada del logo (comienza cuando las líneas centrales se conectan)
+      // Rotar y escalar el chip "IT"
+      mainTl.to('.logo-it-chip', {
+        scale: 1,
+        rotationY: 0,
+        duration: 1.2,
+        ease: 'back.out(1.5)'
+      }, '-=0.8');
+      
+      // Dibujar/sacar los pines del chip
+      mainTl.to('.pin', {
+        scaleY: 1,
+        duration: 0.4,
+        stagger: 0.05,
+        ease: 'elastic.out(1.2, 0.5)'
+      }, '-=0.6');
+      
+      // Deslizar "Summ"
+      mainTl.to('.logo-summ', {
+        opacity: 1,
+        x: 0,
+        duration: 0.8,
+        ease: 'power3.out'
+      }, '-=1.0');
+      
+      // D) Entrada del lema
+      mainTl.to('.tagline', {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        ease: 'power3.out'
+      }, '-=0.4');
+      
+      // E) Entrada del badge de ubicación
+      mainTl.to('.location-badge', {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'back.out(1.2)'
+      }, '-=0.5');
+
+      // F) Generar flujos de datos aleatorios en los circuitos a partir del segundo 3
+      setInterval(() => {
+        circuits.triggerDataFlow();
+      }, 1500);
+
+      // G) Auto-desvanecimiento al segundo 9 (dura 1s para completar los 10s exactos)
+      // Esto deja la pantalla en negro/transparente antes de que el OBS corte a la escena en vivo.
+      Utils.setupSceneAutoFadeOut(9000);
+    });
+  </script>
+</body>
+</html>

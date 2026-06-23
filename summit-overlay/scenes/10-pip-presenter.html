@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SummIT — PiP Presenter Layout</title>
+  
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/circuits.css">
+  
+  <style>
+    body, html { background: transparent !important; }
+
+    .scene-container {
+      isolation: isolate;
+    }
+
+    .masked-background {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-purple-dark);
+      z-index: 1;
+    }
+
+    .cutout {
+      position: absolute;
+      background: black;
+      mix-blend-mode: destination-out;
+      z-index: 5;
+    }
+
+    .camera-cutout {
+      left: 3vw; top: 10vh; width: 65vw; height: 36.56vw; border-radius: 1vw;
+    }
+
+    .slides-cutout {
+      left: 71vw; top: 15vh; width: 26vw; height: 14.62vw; border-radius: 1vw;
+    }
+
+    .frame-overlay {
+      position: absolute;
+      z-index: 10;
+      pointer-events: none;
+      border-radius: 1vw;
+    }
+
+    /* 65% Width para la cámara (Protagonista) */
+    .camera-frame {
+      left: 3vw;
+      top: 10vh;
+      width: 65vw;
+      height: 36.56vw;
+      border: 3px solid var(--gold-bright);
+      box-shadow: 0 0 30px rgba(242, 169, 59, 0.4), inset 0 0 15px rgba(242, 169, 59, 0.3);
+    }
+
+    /* 25% Width para slides (Apoyo) */
+    .slides-frame {
+      left: 71vw;
+      top: 15vh;
+      width: 26vw;
+      height: 14.62vw;
+      border: 3px solid var(--magenta-base);
+      box-shadow: 0 0 20px rgba(185, 29, 115, 0.4), inset 0 0 10px rgba(185, 29, 115, 0.4);
+    }
+
+    .branding-box {
+      position: absolute;
+      bottom: 12vh;
+      right: 5vw;
+      width: 22vw;
+      background: rgba(61, 26, 92, 0.6);
+      border: 1px solid rgba(242, 169, 59, 0.2);
+      border-radius: 15px;
+      padding: 3vh 2vw;
+      text-align: center;
+      backdrop-filter: blur(15px);
+      z-index: 10;
+    }
+
+    .logo-summ {
+      font-size: 3.5vw;
+      font-weight: 800;
+      color: var(--text-white);
+    }
+    
+    .logo-it-chip {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--gold-bright), var(--gold-dark));
+      border-radius: 6px;
+      padding: 0 0.8vw;
+      color: var(--bg-purple-dark);
+      font-weight: 800;
+      font-size: 3.2vw;
+      box-shadow: var(--glow-gold);
+    }
+
+    .qa-badge {
+      display: inline-block;
+      margin-top: 2vh;
+      background: var(--magenta-base);
+      color: white;
+      padding: 0.5vh 1.5vw;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1.2vw;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      box-shadow: var(--glow-magenta);
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="scene-container transparent-bg">
+    <div class="masked-background">
+      <div class="circuits-layer looping-bg"></div>
+      <div class="particles-layer"></div>
+    </div>
+
+    <!-- Huecos que cortan la transparencia -->
+    <div class="cutout camera-cutout"></div>
+    <div class="cutout slides-cutout"></div>
+
+    <div class="frame-overlay camera-frame"></div>
+    <div class="frame-overlay slides-frame"></div>
+
+    <div class="branding-box">
+      <span class="logo-summ">Summ</span><span class="logo-it-chip">IT</span>
+      <br>
+      <div class="qa-badge">Q&A / Discusión</div>
+    </div>
+  </div>
+
+  <script src="../assets/vendor/gsap.min.js"></script>
+  <script src="../assets/js/circuits-bg.js"></script>
+  <script>
+    const circuits = new CircuitsBG('.circuits-layer', { theme: 'gold' });
+    circuits.setStatic();
+    setInterval(() => circuits.triggerDataFlow(), 2500);
+  </script>
+</body>
+</html>

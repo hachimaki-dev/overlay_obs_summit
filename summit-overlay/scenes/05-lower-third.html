@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SummIT — Lower Third</title>
+  
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  
+  <style>
+    /* Aseguramos transparencia total para poder superponer sobre la cámara */
+    body, html, .scene-container {
+      background: transparent !important;
+    }
+
+    .lower-third-container {
+      position: absolute;
+      bottom: 8vh;
+      left: 5vw;
+      display: flex;
+      align-items: center;
+      opacity: 0;
+      transform: translateX(-100px);
+    }
+
+    .lt-accent {
+      width: 1.5vw;
+      height: 12vh;
+      background: var(--gold-bright);
+      box-shadow: var(--glow-gold);
+      border-radius: 8px 0 0 8px;
+    }
+
+    .lt-content {
+      background: linear-gradient(to right, rgba(61, 26, 92, 0.95), rgba(26, 10, 46, 0.8));
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(242, 169, 59, 0.3);
+      border-left: none;
+      border-radius: 0 12px 12px 0;
+      padding: 2vh 4vw 2vh 2vw;
+      box-shadow: 10px 10px 30px rgba(0,0,0,0.6);
+      min-width: 35vw;
+    }
+
+    .lt-name {
+      font-size: clamp(24px, 3vw, 50px);
+      font-weight: 800;
+      color: var(--text-white);
+      margin-bottom: 0.5vh;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .lt-title {
+      font-size: clamp(16px, 1.8vw, 30px);
+      font-weight: 600;
+      color: var(--gold-bright);
+    }
+
+    .lt-logo {
+      position: absolute;
+      right: -3vw;
+      top: -3vh;
+      background: var(--bg-purple-dark);
+      border: 2px solid var(--magenta-base);
+      border-radius: 50%;
+      width: 8vh;
+      height: 8vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: var(--text-white);
+      box-shadow: var(--glow-magenta);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene-container transparent-bg">
+    <div class="lower-third-container" id="lt-box">
+      <div class="lt-accent"></div>
+      <div class="lt-content">
+        <div class="lt-name" id="ltName">Cargando...</div>
+        <div class="lt-title" id="ltTitle"></div>
+      </div>
+      <div class="lt-logo">IT</div>
+    </div>
+  </div>
+
+  <script src="../assets/vendor/gsap.min.js"></script>
+  <script src="../assets/js/utils.js"></script>
+  <script>
+    let speakersData = [];
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      speakersData = await Utils.getSpeakers();
+      
+      // Auto-iniciar si se pasa un index por URL
+      const indexParam = Utils.getQueryParam('index');
+      if (indexParam !== null) {
+        showLowerThird(parseInt(indexParam, 10));
+        
+        // Auto-esconder después de 8 segundos si es disparado por URL
+        setTimeout(() => hideLowerThird(), 8000);
+      }
+    });
+
+    // Funciones globales para que OBS o un panel externo pueda llamarlas vía Evaluate JS
+    window.showLowerThird = function(index) {
+      if (speakersData && speakersData[index]) {
+        document.getElementById('ltName').innerText = speakersData[index].name;
+        document.getElementById('ltTitle').innerText = speakersData[index].title;
+      }
+      
+      gsap.to('#lt-box', {
+        x: 0,
+        opacity: 1,
+        duration: 1,
+        ease: 'power3.out'
+      });
+    };
+
+    window.hideLowerThird = function() {
+      gsap.to('#lt-box', {
+        x: -100,
+        opacity: 0,
+        duration: 0.8,
+        ease: 'power3.in'
+      });
+    };
+  </script>
+</body>
+</html>

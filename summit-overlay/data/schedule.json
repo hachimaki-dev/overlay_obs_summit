@@ -1,0 +1,10 @@
+[
+  { "time": "8:30", "activity": "Acreditación" },
+  { "time": "9:00", "activity": "Inicio actividad y palabras de bienvenida" },
+  { "time": "9:20", "activity": "Charla: Preparándose para el trabajo en el mundo de la IA", "speaker": "Paolo Colonnello" },
+  { "time": "9:45", "activity": "Charla: Context Architecture", "speaker": "Sergio Azócar" },
+  { "time": "10:10", "activity": "Coffee Break — Más Allá de la Pantalla: Proyectos que Transforman" },
+  { "time": "10:35", "activity": "Charla: La fábrica del futuro", "speaker": "Nicolás Beghelli" },
+  { "time": "10:55", "activity": "Charla: Smart Farming 4.0", "speaker": "Álvaro Pérez-Nur" },
+  { "time": "11:20", "activity": "Cierre actividad y entrega de reconocimientos" }
+]

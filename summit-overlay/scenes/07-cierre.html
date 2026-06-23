@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SummIT — Cierre</title>
+  
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/circuits.css">
+  
+  <style>
+    .message-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(26, 10, 46, 0.6);
+      border: 1px solid rgba(242, 169, 59, 0.3);
+      padding: 5vh 8vw;
+      border-radius: 20px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(242, 169, 59, 0.1);
+      z-index: 10;
+      opacity: 0;
+      transform: scale(0.9);
+    }
+
+    .main-title {
+      font-size: clamp(50px, 7vw, 120px);
+      font-weight: 800;
+      color: var(--text-white);
+      margin-bottom: 2vh;
+    }
+
+    .subtitle {
+      font-size: clamp(20px, 3vw, 50px);
+      font-weight: 600;
+      color: var(--gold-bright);
+      letter-spacing: 0.05em;
+      text-shadow: var(--glow-gold);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene-container">
+    <div class="circuits-layer"></div>
+    <div class="particles-layer"></div>
+    
+    <div class="content-layer">
+      <div class="message-container" id="cierreBox">
+        <h1 class="main-title">Gracias por participar</h1>
+        <h2 class="subtitle">Nos vemos en la próxima versión</h2>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/vendor/gsap.min.js"></script>
+  <script src="../assets/js/circuits-bg.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const circuits = new CircuitsBG('.circuits-layer', { theme: 'gold' });
+      
+      // Animación de cierre
+      const tl = gsap.timeline();
+      
+      // Dibuja los circuitos hacia el centro (efecto ensamble inverso al inicio)
+      circuits.animateDraw(tl, 3);
+      
+      tl.to('#cierreBox', {
+        opacity: 1,
+        scale: 1,
+        duration: 1.5,
+        ease: 'back.out(1.2)'
+      }, '-=1');
+      
+      // Generar partículas que van hacia el centro
+      const container = document.querySelector('.particles-layer');
+      for (let i = 0; i < 40; i++) {
+        const p = document.createElement('div');
+        p.style.cssText = `position: absolute; width: 4px; height: 4px; background: var(--gold-bright); border-radius: 50%; left: ${Math.random() > 0.5 ? -10 : 110}%; top: ${Math.random() * 100}%; filter: drop-shadow(var(--glow-gold));`;
+        container.appendChild(p);
+        
+        gsap.to(p, {
+          left: '50%',
+          top: '50%',
+          opacity: 0,
+          duration: Math.random() * 2 + 2,
+          delay: Math.random() * 2 + 1,
+          ease: 'power2.in'
+        });
+      }
+    });
+  </script>
+</body>
+</html>
