@@ -176,10 +176,33 @@
         <a href="scenes/09-pip-split.html" target="_blank" class="action-btn">Abrir Overlay</a>
       </div>
       
-      <div class="card">
-        <h2>10. Layout Presenter <span class="duration-badge">PiP</span></h2>
-        <p>Cámara principal de gran tamaño y presentación pequeña. Ideal para Q&A o discusión.</p>
-        <a href="scenes/10-pip-presenter.html" target="_blank" class="action-btn">Abrir Overlay</a>
+      <div class="card" style="grid-row: span 2;">
+        <h2>10. Layout Presenter <span class="duration-badge">PiP / Grande</span></h2>
+        <p>Cámara principal maximizada y PPT de apoyo. Configura el banner de información inferior antes de abrir:</p>
+        
+        <!-- Controles para prender/apagar la barra e indexar speaker -->
+        <div style="background: rgba(26, 10, 46, 0.4); border: 1px solid rgba(242,169,59,0.3); border-radius: 8px; padding: 12px; margin: 10px 0; display: flex; flex-direction: column; gap: 10px;">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; color: var(--gold-bright); font-weight: bold; margin: 0;">
+            <input type="checkbox" id="toggle-presenter-bar" checked style="cursor: pointer; width: 15px; height: 15px;">
+            Habilitar Barra de Speaker
+          </label>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 5px;">
+            <span style="font-size: 0.8rem; color: var(--text-light); opacity: 0.85;">Speaker:</span>
+            <select id="presenter-speaker-select" style="background: var(--bg-purple-dark); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 4px; font-size: 0.8rem; width: 75%; outline: none; cursor: pointer;"></select>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 5px;">
+          <a href="scenes/10-pip-presenter.html" id="btn-presenter-left" target="_blank" class="action-btn" style="background: linear-gradient(135deg, var(--gold-bright), var(--gold-base)); color: var(--bg-purple-dark); text-align: center; text-decoration: none; padding: 10px; border-radius: 6px; font-weight: bold;">
+            👈 Presentador Izquierda / Slide Derecha
+          </a>
+          <a href="scenes/10-pip-presenter-right.html" id="btn-presenter-right" target="_blank" class="action-btn" style="background: linear-gradient(135deg, var(--magenta-base), var(--magenta-dark)); color: white; text-align: center; text-decoration: none; padding: 10px; border-radius: 6px; font-weight: bold;">
+            👉 Presentador Derecha / Slide Izquierda
+          </a>
+          <a href="scenes/10-pip-presenter-cinema.html" id="btn-presenter-cinema" target="_blank" class="action-btn" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.25); text-align: center; text-decoration: none; padding: 10px; border-radius: 6px; font-weight: bold; transition: background 0.2s;">
+            🎬 Estilo Cinematográfico (Escalonado)
+          </a>
+        </div>
       </div>
       
       <h2 class="section-title">Formatos Avanzados de Broadcast (Mesa Redonda, Agenda y Tickers)</h2>
@@ -266,6 +289,40 @@
           agendaLinksList.appendChild(link);
         });
       }
+
+      // Rellenar selector de presentadores
+      const select = document.getElementById('presenter-speaker-select');
+      if (select && speakers && speakers.length > 0) {
+        speakers.forEach((sp, idx) => {
+          const opt = document.createElement('option');
+          opt.value = idx;
+          opt.textContent = `${idx + 1}. ${sp.name}`;
+          select.appendChild(opt);
+        });
+      }
+
+      // Función para actualizar los enlaces de los presentadores
+      const toggleBarInput = document.getElementById('toggle-presenter-bar');
+      const speakerSelect = document.getElementById('presenter-speaker-select');
+      const btnLeft = document.getElementById('btn-presenter-left');
+      const btnRight = document.getElementById('btn-presenter-right');
+      const btnCinema = document.getElementById('btn-presenter-cinema');
+
+      function updatePresenterLinks() {
+        const isChecked = toggleBarInput ? toggleBarInput.checked : true;
+        const selectedIdx = speakerSelect ? speakerSelect.value : 0;
+        
+        const suffix = `?index=${selectedIdx}&show_label=${isChecked}`;
+        
+        if (btnLeft) btnLeft.href = `scenes/10-pip-presenter.html${suffix}`;
+        if (btnRight) btnRight.href = `scenes/10-pip-presenter-right.html${suffix}`;
+        if (btnCinema) btnCinema.href = `scenes/10-pip-presenter-cinema.html${suffix}`;
+      }
+
+      if (toggleBarInput) toggleBarInput.addEventListener('change', updatePresenterLinks);
+      if (speakerSelect) speakerSelect.addEventListener('change', updatePresenterLinks);
+      
+      updatePresenterLinks(); // Pre-cargar urls al inicio
     });
   </script>
 

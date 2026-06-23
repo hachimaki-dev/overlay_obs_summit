@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SummIT — PiP Presenter Layout (Standard)</title>
+  <title>SummIT — PiP Presenter Layout (Flipped)</title>
   
   <link rel="stylesheet" href="../assets/css/variables.css">
   <link rel="stylesheet" href="../assets/css/base.css">
@@ -31,18 +31,18 @@
       z-index: 5;
     }
 
-    /* Enlarged Camera cutout (72vw width, 40.5vw height is 16:9) */
+    /* Enlarged Camera cutout (72vw width, 40.5vw height is 16:9) on the right side */
     .camera-cutout {
-      left: 3vw;
+      left: 25vw;
       top: 10vh;
       width: 72vw;
       height: 40.5vw;
       border-radius: 1vw;
     }
 
-    /* Enlarged Slides cutout (21vw width, 11.81vw height is 16:9) */
+    /* Slides cutout on the left side */
     .slides-cutout {
-      left: 76vw;
+      left: 2vw;
       top: 10vh;
       width: 21vw;
       height: 11.81vw;
@@ -56,9 +56,9 @@
       border-radius: 1vw;
     }
 
-    /* Large Camera Frame */
+    /* Large Camera Frame on the right */
     .camera-frame {
-      left: 3vw;
+      left: 25vw;
       top: 10vh;
       width: 72vw;
       height: 40.5vw;
@@ -66,9 +66,9 @@
       box-shadow: 0 0 35px rgba(242, 169, 59, 0.45), inset 0 0 15px rgba(242, 169, 59, 0.3);
     }
 
-    /* Supporting Slide Frame */
+    /* Supporting Slide Frame on the left */
     .slides-frame {
-      left: 76vw;
+      left: 2vw;
       top: 10vh;
       width: 21vw;
       height: 11.81vw;
@@ -77,12 +77,12 @@
       box-shadow: 0 0 25px rgba(185, 29, 115, 0.45), inset 0 0 10px rgba(185, 29, 115, 0.3);
     }
 
-    /* Floating clean minimalist logo (top right corner of the right space) */
+    /* Floating clean minimalist label on the left space */
     .clean-info-label {
       position: absolute;
       top: 72vh;
-      right: 3vw;
-      text-align: right;
+      left: 2vw;
+      text-align: left;
       z-index: 10;
     }
 
@@ -167,7 +167,7 @@
     <div class="frame-overlay camera-frame"></div>
     <div class="frame-overlay slides-frame"></div>
 
-    <!-- Floating text info -->
+    <!-- Floating text info (flipped layout bottom-left placement) -->
     <div class="clean-info-label">
       <div class="logo-text">Summ<span>IT</span></div>
       <div class="sub-text">Presentador & Diapositivas</div>

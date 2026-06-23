@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SummIT — PiP Presenter Layout (Standard)</title>
+  <title>SummIT — PiP Presenter Layout (Cinematic)</title>
   
   <link rel="stylesheet" href="../assets/css/variables.css">
   <link rel="stylesheet" href="../assets/css/base.css">
@@ -31,22 +31,22 @@
       z-index: 5;
     }
 
-    /* Enlarged Camera cutout (72vw width, 40.5vw height is 16:9) */
+    /* Cinematic Camera cutout (62vw width, 34.875vw height is 16:9) */
     .camera-cutout {
-      left: 3vw;
+      left: 4vw;
       top: 10vh;
-      width: 72vw;
-      height: 40.5vw;
+      width: 62vw;
+      height: 34.875vw;
       border-radius: 1vw;
     }
 
-    /* Enlarged Slides cutout (21vw width, 11.81vw height is 16:9) */
+    /* Cinematic Slides cutout (32vw width, 18vw height is 16:9) */
     .slides-cutout {
-      left: 76vw;
-      top: 10vh;
-      width: 21vw;
-      height: 11.81vw;
-      border-radius: 0.8vw;
+      left: 64vw;
+      top: 48vh;
+      width: 32vw;
+      height: 18vw;
+      border-radius: 1vw;
     }
 
     .frame-overlay {
@@ -56,38 +56,36 @@
       border-radius: 1vw;
     }
 
-    /* Large Camera Frame */
+    /* Camera Frame upper-left */
     .camera-frame {
-      left: 3vw;
+      left: 4vw;
       top: 10vh;
-      width: 72vw;
-      height: 40.5vw;
+      width: 62vw;
+      height: 34.875vw;
       border: 3px solid var(--gold-bright);
-      box-shadow: 0 0 35px rgba(242, 169, 59, 0.45), inset 0 0 15px rgba(242, 169, 59, 0.3);
+      box-shadow: 0 0 30px rgba(242, 169, 59, 0.45), inset 0 0 15px rgba(242, 169, 59, 0.3);
     }
 
-    /* Supporting Slide Frame */
+    /* Slides Frame lower-right */
     .slides-frame {
-      left: 76vw;
-      top: 10vh;
-      width: 21vw;
-      height: 11.81vw;
-      border-radius: 0.8vw;
+      left: 64vw;
+      top: 48vh;
+      width: 32vw;
+      height: 18vw;
       border: 3px solid var(--magenta-base);
-      box-shadow: 0 0 25px rgba(185, 29, 115, 0.45), inset 0 0 10px rgba(185, 29, 115, 0.3);
+      box-shadow: 0 0 30px rgba(185, 29, 115, 0.45), inset 0 0 15px rgba(185, 29, 115, 0.3);
     }
 
-    /* Floating clean minimalist logo (top right corner of the right space) */
-    .clean-info-label {
+    /* Elegant label in the gap (top right) */
+    .cinema-label {
       position: absolute;
-      top: 72vh;
-      right: 3vw;
-      text-align: right;
+      top: 15vh;
+      left: 68vw;
       z-index: 10;
     }
 
     .logo-text {
-      font-size: 2.2vw;
+      font-size: 2vw;
       font-weight: 800;
       color: var(--text-white);
       letter-spacing: 0.05vw;
@@ -102,7 +100,7 @@
     }
 
     .sub-text {
-      font-size: 0.95vw;
+      font-size: 0.85vw;
       color: var(--text-light);
       opacity: 0.75;
       font-weight: 600;
@@ -115,8 +113,8 @@
     .speaker-info-bar {
       position: absolute;
       bottom: 5vh;
-      left: 3vw;
-      width: 94vw;
+      left: 4vw;
+      width: 92vw;
       height: 6.5vh;
       background: rgba(26, 10, 46, 0.85);
       border-left: 5px solid var(--magenta-base);
@@ -163,14 +161,14 @@
     <div class="cutout camera-cutout"></div>
     <div class="cutout slides-cutout"></div>
 
-    <!-- Neon glowing frames -->
+    <!-- Glowing frames -->
     <div class="frame-overlay camera-frame"></div>
     <div class="frame-overlay slides-frame"></div>
 
-    <!-- Floating text info -->
-    <div class="clean-info-label">
+    <!-- Minimal branding layout -->
+    <div class="cinema-label">
       <div class="logo-text">Summ<span>IT</span></div>
-      <div class="sub-text">Presentador & Diapositivas</div>
+      <div class="sub-text">Cinematic View / 5ta Versión</div>
     </div>
 
     <!-- Horizontal Speaker Info Bar -->
@@ -186,7 +184,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       // 1. Initialize circuits background
-      const circuits = new CircuitsBG('.circuits-layer', { theme: 'gold' });
+      const circuits = new CircuitsBG('.circuits-layer', { theme: 'mixed' });
       circuits.setStatic();
       setInterval(() => circuits.triggerDataFlow(), 3000);
 
