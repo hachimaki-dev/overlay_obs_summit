@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SummIT — Panel de Discusión</title>
+  
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/circuits.css">
+  
+  <style>
+    body, html { background: transparent !important; }
+
+    .scene-container {
+      isolation: isolate;
+    }
+
+    .masked-background {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-purple-dark);
+      z-index: 1;
+    }
+
+    /* Cutouts to punch transparent windows in the background */
+    .cutout {
+      position: absolute;
+      background: black;
+      mix-blend-mode: destination-out;
+      z-index: 5;
+    }
+
+    /* Left camera cutout: 41vw width, 23.06vw height (16:9 aspect ratio) */
+    .cam-left-cutout {
+      left: 6vw;
+      top: 20vh;
+      width: 41vw;
+      height: 23.06vw;
+      border-radius: 1vw;
+    }
+
+    /* Right camera cutout */
+    .cam-right-cutout {
+      left: 53vw;
+      top: 20vh;
+      width: 41vw;
+      height: 23.06vw;
+      border-radius: 1vw;
+    }
+
+    /* Glowing borders overlayed on top of the cutouts */
+    .frame-overlay {
+      position: absolute;
+      z-index: 10;
+      pointer-events: none;
+      border-radius: 1vw;
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    .frame-left {
+      left: 6vw;
+      top: 20vh;
+      width: 41vw;
+      height: 23.06vw;
+      border: 3px solid var(--magenta-base);
+      box-shadow: 0 0 25px rgba(185, 29, 115, 0.5), inset 0 0 15px rgba(185, 29, 115, 0.4);
+    }
+
+    .frame-right {
+      left: 53vw;
+      top: 20vh;
+      width: 41vw;
+      height: 23.06vw;
+      border: 3px solid var(--gold-base);
+      box-shadow: 0 0 25px rgba(242, 169, 59, 0.5), inset 0 0 15px rgba(242, 169, 59, 0.4);
+    }
+
+    /* Header Panel bar */
+    .header-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 10vh;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 6vw;
+      background: linear-gradient(to right, rgba(61, 26, 92, 0.95), rgba(26, 10, 46, 0.85));
+      border-bottom: 2px solid rgba(242, 169, 59, 0.4);
+      z-index: 10;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 1vw;
+    }
+
+    .logo {
+      font-size: 2vw;
+      font-weight: 800;
+      color: var(--text-white);
+    }
+
+    .logo span {
+      background: linear-gradient(135deg, var(--gold-bright), var(--gold-dark));
+      border-radius: 4px;
+      padding: 0 0.4vw;
+      color: var(--bg-purple-dark);
+      margin-left: 0.2vw;
+    }
+
+    .panel-title {
+      font-size: 1.6vw;
+      font-weight: 700;
+      color: var(--text-white);
+      text-transform: uppercase;
+      letter-spacing: 0.1vw;
+      border-left: 3px solid var(--magenta-base);
+      padding-left: 1vw;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+
+    .badge {
+      background: rgba(185, 29, 115, 0.25);
+      border: 1px solid var(--magenta-base);
+      color: var(--text-light);
+      padding: 0.4vh 1vw;
+      border-radius: 20px;
+      font-size: 0.9vw;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    /* Speaker label cards placed below the camera feeds */
+    .speaker-label-card {
+      position: absolute;
+      top: 65vh;
+      width: 41vw;
+      padding: 2.5vh 2vw;
+      background: rgba(26, 10, 46, 0.85);
+      border-radius: 12px;
+      z-index: 10;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .card-left {
+      left: 6vw;
+      border-left: 5px solid var(--magenta-base);
+      border-top: 1px solid rgba(185, 29, 115, 0.2);
+    }
+
+    .card-right {
+      left: 53vw;
+      border-left: 5px solid var(--gold-base);
+      border-top: 1px solid rgba(242, 169, 59, 0.2);
+    }
+
+    .speaker-name {
+      font-size: 1.8vw;
+      font-weight: 700;
+      margin-bottom: 0.5vh;
+    }
+
+    .name-left {
+      color: var(--text-white);
+      text-shadow: 0 0 10px rgba(185, 29, 115, 0.3);
+    }
+
+    .name-right {
+      color: var(--text-white);
+      text-shadow: 0 0 10px rgba(242, 169, 59, 0.3);
+    }
+
+    .speaker-title {
+      font-size: 1.1vw;
+      color: var(--text-light);
+      opacity: 0.85;
+      font-weight: 600;
+    }
+
+    .speaker-talk {
+      font-size: 0.95vw;
+      color: var(--gold-bright);
+      opacity: 0.9;
+      margin-top: 1vh;
+      border-top: 1px dashed rgba(255, 255, 255, 0.15);
+      padding-top: 1vh;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene-container transparent-bg">
+    <!-- Dark background which will be cut by mix-blend-mode -->
+    <div class="masked-background">
+      <div class="circuits-layer looping-bg"></div>
+    </div>
+
+    <!-- Cutout boxes (punches transparent holes for OBS webcam streams) -->
+    <div class="cutout cam-left-cutout"></div>
+    <div class="cutout cam-right-cutout"></div>
+
+    <!-- Foreground Elements -->
+    <div class="header-bar">
+      <div class="logo-container">
+        <div class="logo">Summ<span>IT</span></div>
+        <div class="badge">Conversatorio</div>
+      </div>
+      <div class="panel-title" id="panel-title-text">Panel de Discusión</div>
+    </div>
+
+    <!-- Glowing frames sitting on top of the cutouts -->
+    <div class="frame-overlay frame-left"></div>
+    <div class="frame-overlay frame-right"></div>
+
+    <!-- Speaker labels -->
+    <div class="speaker-label-card card-left" id="card-left">
+      <div class="speaker-name name-left" id="sp1-name">Speaker 1</div>
+      <div class="speaker-title" id="sp1-title">Cargo / Organización</div>
+      <div class="speaker-talk" id="sp1-talk">Charla de Presentación</div>
+    </div>
+
+    <div class="speaker-label-card card-right" id="card-right">
+      <div class="speaker-name name-right" id="sp2-name">Speaker 2</div>
+      <div class="speaker-title" id="sp2-title">Cargo / Organización</div>
+      <div class="speaker-talk" id="sp2-talk">Charla de Presentación</div>
+    </div>
+  </div>
+
+  <script src="../assets/vendor/gsap.min.js"></script>
+  <script src="../assets/js/utils.js"></script>
+  <script src="../assets/js/circuits-bg.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Initialize background circuits
+      const circuits = new CircuitsBG('.circuits-layer', { theme: 'mixed' });
+      circuits.setStatic();
+      
+      // Trigger random data flow flashes every few seconds
+      setInterval(() => circuits.triggerDataFlow(), 3000);
+
+      // 2. Load speakers data and configuration
+      const speakers = await Utils.getSpeakers();
+      
+      // Parse parameters
+      const titleParam = Utils.getQueryParam('title');
+      if (titleParam) {
+        document.getElementById('panel-title-text').textContent = titleParam;
+      }
+
+      // Speaker 1 Data
+      let name1 = Utils.getQueryParam('name1');
+      let title1 = Utils.getQueryParam('title1');
+      let talk1 = Utils.getQueryParam('talk1');
+      const index1 = parseInt(Utils.getQueryParam('index1')) || 0;
+
+      if (!name1 && speakers && speakers[index1]) {
+        name1 = speakers[index1].name;
+        title1 = speakers[index1].title;
+        talk1 = speakers[index1].talk;
+      }
+
+      // Speaker 2 Data
+      let name2 = Utils.getQueryParam('name2');
+      let title2 = Utils.getQueryParam('title2');
+      let talk2 = Utils.getQueryParam('talk2');
+      const defaultIndex2 = speakers && speakers.length > 1 ? 1 : 0;
+      const index2 = parseInt(Utils.getQueryParam('index2')) || defaultIndex2;
+
+      if (!name2 && speakers && speakers[index2]) {
+        name2 = speakers[index2].name;
+        title2 = speakers[index2].title;
+        talk2 = speakers[index2].talk;
+      }
+
+      // Update UI elements
+      document.getElementById('sp1-name').textContent = name1 || 'Moderador / Panelista';
+      document.getElementById('sp1-title').textContent = title1 || 'Duoc UC';
+      document.getElementById('sp1-talk').textContent = talk1 || 'Organizador de Panel';
+
+      document.getElementById('sp2-name').textContent = name2 || 'Invitado Especial';
+      document.getElementById('sp2-title').textContent = title2 || 'Invitado';
+      document.getElementById('sp2-talk').textContent = talk2 || 'Charla / Comentarios';
+
+      // 3. Animate elements on load
+      const tl = gsap.timeline({ delay: 0.5 });
+      
+      tl.to('.frame-overlay', {
+        opacity: 1,
+        scale: 1,
+        duration: 1,
+        ease: 'power3.out',
+        stagger: 0.2
+      });
+
+      tl.to('.speaker-label-card', {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'back.out(1.2)',
+        stagger: 0.15
+      }, '-=0.5');
+    });
+  </script>
+</body>
+</html>

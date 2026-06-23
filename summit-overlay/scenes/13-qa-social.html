@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SummIT — Panel de Q&A</title>
+  
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/circuits.css">
+  
+  <style>
+    body, html { background: transparent !important; }
+
+    .scene-container {
+      isolation: isolate;
+    }
+
+    .masked-background {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-purple-dark);
+      z-index: 1;
+    }
+
+    /* Cutouts to punch transparent windows in the background */
+    .cutout {
+      position: absolute;
+      background: black;
+      mix-blend-mode: destination-out;
+      z-index: 5;
+    }
+
+    /* Presenter camera cutout (16:9 ratio) */
+    .presenter-cutout {
+      left: 8vw;
+      top: 14vh;
+      width: 38vw;
+      height: 21.375vw;
+      border-radius: 1vw;
+    }
+
+    /* Moderator camera cutout (16:9 ratio) */
+    .moderator-cutout {
+      left: 54vw;
+      top: 14vh;
+      width: 38vw;
+      height: 21.375vw;
+      border-radius: 1vw;
+    }
+
+    /* Glowing borders overlayed on top of the cutouts */
+    .frame-overlay {
+      position: absolute;
+      z-index: 10;
+      pointer-events: none;
+      border-radius: 1vw;
+    }
+
+    .frame-presenter {
+      left: 8vw;
+      top: 14vh;
+      width: 38vw;
+      height: 21.375vw;
+      border: 3px solid var(--magenta-base);
+      box-shadow: 0 0 25px rgba(185, 29, 115, 0.45), inset 0 0 15px rgba(185, 29, 115, 0.35);
+    }
+
+    .frame-moderator {
+      left: 54vw;
+      top: 14vh;
+      width: 38vw;
+      height: 21.375vw;
+      border: 3px solid var(--gold-base);
+      box-shadow: 0 0 25px rgba(242, 169, 59, 0.45), inset 0 0 15px rgba(242, 169, 59, 0.35);
+    }
+
+    /* Small labels indicating roles */
+    .role-badge {
+      position: absolute;
+      top: 11vh;
+      font-size: 0.9vw;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1vw;
+      z-index: 10;
+      padding: 0.2vh 0.8vw;
+      border-radius: 4px;
+      color: var(--text-white);
+    }
+
+    .badge-presenter {
+      left: 8vw;
+      background: var(--magenta-base);
+      box-shadow: var(--glow-magenta);
+    }
+
+    .badge-moderator {
+      left: 54vw;
+      background: var(--gold-base);
+      color: var(--bg-purple-dark);
+      box-shadow: var(--glow-gold);
+    }
+
+    /* Header Panel bar */
+    .header-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 9vh;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8vw;
+      background: linear-gradient(to right, rgba(61, 26, 92, 0.95), rgba(26, 10, 46, 0.85));
+      border-bottom: 2px solid rgba(242, 169, 59, 0.4);
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 2vw;
+      font-weight: 800;
+      color: var(--text-white);
+    }
+
+    .logo span {
+      background: linear-gradient(135deg, var(--gold-bright), var(--gold-dark));
+      border-radius: 4px;
+      padding: 0 0.4vw;
+      color: var(--bg-purple-dark);
+      margin-left: 0.2vw;
+    }
+
+    .header-tagline {
+      color: var(--gold-bright);
+      font-weight: 700;
+      font-size: 1.2vw;
+      text-transform: uppercase;
+      letter-spacing: 0.05vw;
+    }
+
+    /* Question Container Box */
+    .question-container {
+      position: absolute;
+      left: 8vw;
+      top: 57vh;
+      width: 84vw;
+      height: 31vh;
+      background: rgba(26, 10, 46, 0.9);
+      border: 2px solid var(--gold-base);
+      border-radius: 12px;
+      padding: 3vh 3vw;
+      z-index: 10;
+      box-shadow: 0 15px 45px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(242, 169, 59, 0.1);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+      padding-bottom: 1.5vh;
+      margin-bottom: 1.5vh;
+    }
+
+    .question-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5vw;
+      font-size: 1vw;
+      font-weight: 800;
+      color: var(--gold-bright);
+      text-transform: uppercase;
+    }
+
+    .question-badge svg {
+      color: var(--magenta-base);
+      filter: drop-shadow(0 0 5px rgba(185, 29, 115, 0.6));
+    }
+
+    .user-handle {
+      font-size: 1.1vw;
+      font-weight: 700;
+      color: var(--text-light);
+      opacity: 0.9;
+      background: rgba(185, 29, 115, 0.2);
+      padding: 0.4vh 1vw;
+      border-radius: 4px;
+      border-left: 3px solid var(--magenta-base);
+    }
+
+    .question-body {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    .question-text {
+      font-size: 2vw;
+      font-weight: 700;
+      line-height: 1.4;
+      color: var(--text-white);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene-container transparent-bg">
+    <!-- Dark background which will be cut by mix-blend-mode -->
+    <div class="masked-background">
+      <div class="circuits-layer looping-bg"></div>
+    </div>
+
+    <!-- Cutout boxes (punches transparent holes for OBS streams) -->
+    <div class="cutout presenter-cutout"></div>
+    <div class="cutout moderator-cutout"></div>
+
+    <!-- Foreground Elements -->
+    <div class="header-bar">
+      <div class="logo">Summ<span>IT</span></div>
+      <div class="header-tagline">Preguntas y Respuestas</div>
+    </div>
+
+    <!-- Role badges above cameras -->
+    <div class="role-badge badge-presenter">Expositor</div>
+    <div class="role-badge badge-moderator">Moderador</div>
+
+    <!-- Glowing frames sitting on top of the cutouts -->
+    <div class="frame-overlay frame-presenter"></div>
+    <div class="frame-overlay frame-moderator"></div>
+
+    <!-- Question display box -->
+    <div class="question-container" id="question-box">
+      <div class="question-header">
+        <div class="question-badge">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="margin-top:-2px">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          Pregunta del Público
+        </div>
+        <div class="user-handle" id="user-handle-txt">@ComunidadDuoc</div>
+      </div>
+      <div class="question-body">
+        <div class="question-text" id="question-body-txt">Cargando preguntas de la audiencia...</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/vendor/gsap.min.js"></script>
+  <script src="../assets/js/utils.js"></script>
+  <script src="../assets/js/circuits-bg.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Initialize background circuits
+      const circuits = new CircuitsBG('.circuits-layer', { theme: 'mixed' });
+      circuits.setStatic();
+      
+      setInterval(() => circuits.triggerDataFlow(), 4000);
+
+      // 2. Load and animate Question Text
+      const qParam = Utils.getQueryParam('q');
+      const userParam = Utils.getQueryParam('user');
+
+      // Predefined rotating queue of questions if no parameters are specified
+      const defaultQuestions = [
+        { q: "¿Cómo podemos prepararnos para el impacto de la IA en la ciberseguridad industrial?", user: "@ciber_duoc" },
+        { q: "¿Cuáles son las habilidades blandas más valoradas al liderar proyectos con agentes de IA?", user: "@alicia_valdes" },
+        { q: "¿Qué ventajas competitivas ofrece el Smart Farming en la acuicultura local de Puerto Montt?", user: "@salmotech_sur" },
+        { q: "¿Cómo equilibrar la automatización por IA con el mantenimiento de puestos de trabajo locales?", user: "@pablo_ignacio" }
+      ];
+
+      let rotateIndex = 0;
+      let rotationInterval = null;
+
+      function updateQuestion(text, user, animate = true) {
+        if (animate) {
+          // Slide out current text
+          gsap.to('#question-box', {
+            opacity: 0,
+            y: 20,
+            duration: 0.4,
+            ease: 'power2.in',
+            onComplete: () => {
+              document.getElementById('question-body-txt').textContent = text;
+              document.getElementById('user-handle-txt').textContent = user.startsWith('@') ? user : '@' + user;
+              
+              // Slide back in
+              gsap.to('#question-box', {
+                opacity: 1,
+                y: 0,
+                duration: 0.6,
+                ease: 'back.out(1.2)'
+              });
+            }
+          });
+        } else {
+          document.getElementById('question-body-txt').textContent = text;
+          document.getElementById('user-handle-txt').textContent = user.startsWith('@') ? user : '@' + user;
+          
+          gsap.to('#question-box', {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'back.out(1.2)',
+            delay: 0.5
+          });
+        }
+      }
+
+      // Initialize
+      if (qParam) {
+        updateQuestion(qParam, userParam || 'PreguntaAnonima', false);
+      } else {
+        // Run rotation loop
+        const first = defaultQuestions[0];
+        updateQuestion(first.q, first.user, false);
+        
+        rotationInterval = setInterval(() => {
+          rotateIndex = (rotateIndex + 1) % defaultQuestions.length;
+          const current = defaultQuestions[rotateIndex];
+          updateQuestion(current.q, current.user, true);
+        }, 15000); // Rotate every 15 seconds
+      }
+
+      // 3. Slide in animations for layouts on startup
+      gsap.from('.frame-overlay', {
+        opacity: 0,
+        scale: 0.95,
+        duration: 0.8,
+        ease: 'power3.out',
+        stagger: 0.2
+      });
+
+      gsap.from('.role-badge', {
+        opacity: 0,
+        y: -10,
+        duration: 0.6,
+        ease: 'power2.out',
+        stagger: 0.15,
+        delay: 0.3
+      });
+    });
+  </script>
+</body>
+</html>

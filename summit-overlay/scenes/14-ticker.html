@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SummIT — Ticker Inferior</title>
+  
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  
+  <style>
+    body, html { background: transparent !important; }
+
+    .scene-container {
+      background: transparent !important;
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end; /* Pushes the ticker to the bottom */
+    }
+
+    /* Outer Ticker Container */
+    .ticker-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 7.5vh; /* About 80px high on 1080p */
+      background: linear-gradient(to right, 
+        rgba(26, 10, 46, 0.98) 0%, 
+        rgba(61, 26, 92, 0.92) 50%, 
+        rgba(26, 10, 46, 0.98) 100%
+      );
+      border-top: 3px solid var(--gold-base);
+      box-shadow: 0 -5px 25px rgba(242, 169, 59, 0.35);
+      display: flex;
+      align-items: center;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    /* Fixed Left Label Badge (TV News Style) */
+    .ticker-badge {
+      height: 100%;
+      background: linear-gradient(135deg, var(--magenta-base), var(--magenta-dark));
+      color: var(--text-white);
+      display: flex;
+      align-items: center;
+      padding: 0 2vw;
+      font-weight: 800;
+      font-size: 1.2vw;
+      text-transform: uppercase;
+      letter-spacing: 0.1vw;
+      border-right: 3px solid var(--gold-bright);
+      box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+      z-index: 110;
+      white-space: nowrap;
+      position: relative;
+      min-width: 14vw;
+      justify-content: center;
+    }
+
+    .ticker-badge::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: -10px;
+      width: 0;
+      height: 0;
+      border-top: 7.5vh solid transparent;
+      border-left: 10px solid var(--gold-bright);
+      z-index: 109;
+    }
+
+    /* Badge Text Rotator */
+    .badge-text {
+      position: absolute;
+      opacity: 0;
+      transform: translateY(15px);
+      transition: all 0.5s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5vw;
+    }
+
+    .badge-text.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .gold-it {
+      background: var(--gold-bright);
+      color: var(--bg-purple-dark);
+      border-radius: 3px;
+      padding: 0 0.3vw;
+      font-weight: 900;
+    }
+
+    /* Scrolling Container */
+    .ticker-scroll-container {
+      flex-grow: 1;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      position: relative;
+      padding-left: 2vw;
+    }
+
+    /* Scrolling Track (CSS Marquee) */
+    .ticker-track {
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      position: absolute;
+      will-change: transform;
+      animation: marquee 35s linear infinite;
+    }
+
+    /* Individual Ticker Items */
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      font-size: 1.1vw;
+      font-weight: 600;
+      color: var(--text-white);
+      padding: 0 3vw;
+    }
+
+    .ticker-item span.highlight-gold {
+      color: var(--gold-bright);
+      font-weight: 700;
+      text-shadow: 0 0 8px rgba(255, 206, 107, 0.4);
+    }
+
+    .ticker-item span.highlight-magenta {
+      color: #ff54b0;
+      font-weight: 700;
+      text-shadow: 0 0 8px rgba(255, 84, 176, 0.4);
+    }
+
+    /* Tech Divider Icon between items */
+    .ticker-divider {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: var(--gold-base);
+      transform: rotate(45deg);
+      box-shadow: 0 0 8px var(--gold-base);
+      margin: 0 1vw;
+    }
+
+    /* Infinite Marquee Animation keyframes */
+    @keyframes marquee {
+      0% {
+        transform: translate3d(0, 0, 0);
+      }
+      100% {
+        transform: translate3d(-50%, 0, 0); /* Moves exactly half-way because we double the content for wrapping */
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene-container">
+    <div class="ticker-bar">
+      <!-- Rotating TV badge on the left -->
+      <div class="ticker-badge" id="badge-rotator">
+        <div class="badge-text active" data-index="0">Summ<span class="gold-it">IT</span></div>
+        <div class="badge-text" data-index="1">Duoc UC</div>
+        <div class="badge-text" data-index="2">IA Aplicada</div>
+      </div>
+
+      <!-- Scrolling news track -->
+      <div class="ticker-scroll-container">
+        <div class="ticker-track" id="ticker-marquee-track">
+          <!-- Marquee contents will be cloned in JS to ensure seamless wrapping -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/js/utils.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Setup rotating badge on the left
+      const badgeTexts = document.querySelectorAll('.badge-text');
+      let currentBadge = 0;
+
+      setInterval(() => {
+        badgeTexts[currentBadge].classList.remove('active');
+        currentBadge = (currentBadge + 1) % badgeTexts.length;
+        badgeTexts[currentBadge].classList.add('active');
+      }, 4000); // Rotate badge label every 4 seconds
+
+      // 2. Setup ticker content
+      const schedule = await Utils.getSchedule();
+      const speakers = await Utils.getSpeakers();
+
+      // Default items list
+      let tickerItems = [
+        "🔴 <span class='highlight-magenta'>TRANSMISIÓN EN VIVO</span> desde Duoc UC Sede Puerto Montt",
+        "💬 Envía tus preguntas usando el hashtag <span class='highlight-gold'>#SummITDuoc</span>",
+        "⚙️ Escuela de Informática y Telecomunicaciones",
+        "🌐 Más información e inscripciones en <span class='highlight-gold'>www.duoc.cl</span>"
+      ];
+
+      // Add speaker information dynamically
+      if (speakers && speakers.length > 0) {
+        speakers.forEach(sp => {
+          tickerItems.push(`🎙️ <span class='highlight-gold'>SPEAKER:</span> ${sp.name} — "${sp.talk}"`);
+        });
+      }
+
+      // Add schedule details
+      if (schedule && schedule.length > 0) {
+        const nextTalk = schedule.find(item => item.speaker);
+        if (nextTalk) {
+          tickerItems.push(`📅 <span class='highlight-magenta'>PRÓXIMA CHARLA:</span> ${nextTalk.time} hrs — "${nextTalk.activity}" (${nextTalk.speaker})`);
+        }
+      }
+
+      // Build track content (duplicated to support seamless wrapping marquee)
+      const track = document.getElementById('ticker-marquee-track');
+      
+      const buildTrackHTML = () => {
+        let htmlContent = '';
+        tickerItems.forEach(item => {
+          htmlContent += `
+            <div class="ticker-item">${item}</div>
+            <div class="ticker-divider"></div>
+          `;
+        });
+        return htmlContent;
+      };
+
+      const singleSetHTML = buildTrackHTML();
+      // Double the items so when it shifts by -50%, it loops seamlessly
+      track.innerHTML = singleSetHTML + singleSetHTML;
+
+      // Adjust speed based on content length
+      const totalWidth = track.offsetWidth;
+      const seconds = Math.max(25, Math.round(totalWidth / 120)); // Keep speed consistent
+      track.style.animationDuration = `${seconds}s`;
+    });
+  </script>
+</body>
+</html>

@@ -31,7 +31,51 @@ const Utils = {
       }
       return await response.json();
     } catch (e) {
-      console.error(`Error loading JSON from ${path}:`, e);
+      console.warn(`CORS/Fetch error loading JSON from ${path}. Using local offline fallback data.`);
+      
+      // Fallback arrays to support file:// protocol
+      if (path.includes('speakers.json')) {
+        return [
+          {
+            "name": "Paolo Colonnello",
+            "title": "CEO de DIIO",
+            "talk": "Preparándose para el trabajo en el mundo de la IA",
+            "time": "9:20"
+          },
+          {
+            "name": "Sergio Azócar",
+            "title": "Founding Skyward Engineer",
+            "talk": "Context Architecture: Cómo diseñar código para personas y agentes de IA",
+            "time": "9:45"
+          },
+          {
+            "name": "Nicolás Beghelli",
+            "title": "Cofounder Minverso",
+            "talk": "La fábrica del futuro: IA, metaverso y gemelos digitales aplicados a la industria",
+            "time": "10:35"
+          },
+          {
+            "name": "Álvaro Pérez-Nur",
+            "title": "Gerente MOWI Chile",
+            "talk": "Smart Farming 4.0: Cómo la IA está redefiniendo la acuicultura moderna",
+            "time": "10:55"
+          }
+        ];
+      }
+      
+      if (path.includes('schedule.json')) {
+        return [
+          { "time": "8:30", "activity": "Acreditación" },
+          { "time": "9:00", "activity": "Inicio actividad y palabras de bienvenida" },
+          { "time": "9:20", "activity": "Charla: Preparándose para el trabajo en el mundo de la IA", "speaker": "Paolo Colonnello" },
+          { "time": "9:45", "activity": "Charla: Context Architecture", "speaker": "Sergio Azócar" },
+          { "time": "10:10", "activity": "Coffee Break — Más Allá de la Pantalla: Proyectos que Transforman" },
+          { "time": "10:35", "activity": "Charla: La fábrica del futuro", "speaker": "Nicolás Beghelli" },
+          { "time": "10:55", "activity": "Charla: Smart Farming 4.0", "speaker": "Álvaro Pérez-Nur" },
+          { "time": "11:20", "activity": "Cierre actividad y entrega de reconocimientos" }
+        ];
+      }
+      
       return null;
     }
   },
