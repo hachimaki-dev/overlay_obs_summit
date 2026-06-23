@@ -235,6 +235,26 @@
         <p>Cenefa informativa animada continua para la parte inferior de la transmisión. Carga sponsors y charlas automáticamente.</p>
         <a href="scenes/14-ticker.html" target="_blank" class="action-btn">Abrir Overlay</a>
       </div>
+
+      <h2 class="section-title">Solo Webcam (Escenas de Expositor Principal)</h2>
+
+      <div class="card">
+        <h2>15. Webcam Centrada <span class="duration-badge">Single Cam / AI</span></h2>
+        <p>Cámara web del speaker gigante y centrada. Fondo con simulación de red neuronal de Inteligencia Artificial.</p>
+        <a href="scenes/15-cam-centered.html" id="btn-cam-centered" target="_blank" class="action-btn">Abrir Overlay</a>
+      </div>
+
+      <div class="card">
+        <h2>16. Webcam con Sidebar <span class="duration-badge">Single Cam / TV</span></h2>
+        <p>Cámara del speaker alineada a la izquierda con barra lateral derecha técnica (reloj en tiempo real, tag en vivo y logo).</p>
+        <a href="scenes/16-cam-sidebar.html" id="btn-cam-sidebar" target="_blank" class="action-btn">Abrir Overlay</a>
+      </div>
+
+      <div class="card">
+        <h2>17. Webcam Minimalista <span class="duration-badge">Single Cam / Frame</span></h2>
+        <p>Encuadre de cámara casi a pantalla completa (90vw) con marco ultra-delgado, brújulas tech y partículas recorriendo los bordes.</p>
+        <a href="scenes/17-cam-minimal.html" id="btn-cam-minimal" target="_blank" class="action-btn">Abrir Overlay</a>
+      </div>
       
       <!-- Contenedor para inyectar dinámicamente las tarjetas de los speakers -->
       <h2 class="section-title">Fichas Individuales por Speaker (04-speaker-card)</h2>
@@ -301,12 +321,15 @@
         });
       }
 
-      // Función para actualizar los enlaces de los presentadores
+      // Función para actualizar los enlaces de los presentadores y cámaras individuales
       const toggleBarInput = document.getElementById('toggle-presenter-bar');
       const speakerSelect = document.getElementById('presenter-speaker-select');
       const btnLeft = document.getElementById('btn-presenter-left');
       const btnRight = document.getElementById('btn-presenter-right');
       const btnCinema = document.getElementById('btn-presenter-cinema');
+      const btnCamCentered = document.getElementById('btn-cam-centered');
+      const btnCamSidebar = document.getElementById('btn-cam-sidebar');
+      const btnCamMinimal = document.getElementById('btn-cam-minimal');
 
       function updatePresenterLinks() {
         const isChecked = toggleBarInput ? toggleBarInput.checked : true;
@@ -317,6 +340,9 @@
         if (btnLeft) btnLeft.href = `scenes/10-pip-presenter.html${suffix}`;
         if (btnRight) btnRight.href = `scenes/10-pip-presenter-right.html${suffix}`;
         if (btnCinema) btnCinema.href = `scenes/10-pip-presenter-cinema.html${suffix}`;
+        if (btnCamCentered) btnCamCentered.href = `scenes/15-cam-centered.html${suffix}`;
+        if (btnCamSidebar) btnCamSidebar.href = `scenes/16-cam-sidebar.html${suffix}`;
+        if (btnCamMinimal) btnCamMinimal.href = `scenes/17-cam-minimal.html${suffix}`;
       }
 
       if (toggleBarInput) toggleBarInput.addEventListener('change', updatePresenterLinks);

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SummIT — Webcam con Sidebar Técnico</title>
+  
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/circuits.css">
+  
+  <style>
+    body, html { background: transparent !important; }
+
+    .scene-container {
+      isolation: isolate;
+    }
+
+    .masked-background {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-purple-dark);
+      z-index: 1;
+    }
+
+    .cutout {
+      position: absolute;
+      background: black;
+      mix-blend-mode: destination-out;
+      z-index: 5;
+    }
+
+    /* Webcam Cutout (70vw width, 39.375vw height is 16:9) */
+    .camera-cutout {
+      left: 4vw;
+      top: 15vh;
+      width: 70vw;
+      height: 39.375vw;
+      border-radius: 1vw;
+    }
+
+    .frame-overlay {
+      position: absolute;
+      z-index: 10;
+      pointer-events: none;
+      border-radius: 1vw;
+    }
+
+    /* Webcam glowing border */
+    .camera-frame {
+      left: 4vw;
+      top: 15vh;
+      width: 70vw;
+      height: 39.375vw;
+      border: 3px solid var(--magenta-base);
+      box-shadow: 0 0 25px rgba(185, 29, 115, 0.45), inset 0 0 15px rgba(185, 29, 115, 0.3);
+    }
+
+    /* Vertical technical sidebar */
+    .tech-sidebar {
+      position: absolute;
+      left: 76vw;
+      top: 15vh;
+      width: 20vw;
+      height: 39.375vw; /* Matches the camera height exactly */
+      background: rgba(26, 10, 46, 0.85);
+      border: 2px solid var(--gold-base);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), var(--glow-gold);
+      border-radius: 12px;
+      padding: 4vh 1.5vw;
+      z-index: 10;
+      backdrop-filter: blur(15px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+    /* Logo inside sidebar */
+    .logo {
+      font-size: 2.2vw;
+      font-weight: 800;
+      color: var(--text-white);
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 2vh;
+      width: 100%;
+    }
+
+    .logo span {
+      background: linear-gradient(135deg, var(--gold-bright), var(--gold-dark));
+      border-radius: 4px;
+      padding: 0 0.4vw;
+      color: var(--bg-purple-dark);
+      margin-left: 0.2vw;
+    }
+
+    /* Live broadcast & clock panel */
+    .live-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5vh;
+      align-items: center;
+      width: 100%;
+      border-top: 1px dashed rgba(255, 255, 255, 0.15);
+      padding-top: 2.5vh;
+    }
+
+    .live-tag {
+      background: rgba(185, 29, 115, 0.2);
+      border: 1px solid var(--magenta-base);
+      color: #ff54b0;
+      font-weight: 800;
+      font-size: 0.9vw;
+      padding: 0.4vh 1.2vw;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.15vw;
+      display: flex;
+      align-items: center;
+      gap: 0.5vw;
+      box-shadow: var(--glow-magenta);
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: #ff0055;
+      border-radius: 50%;
+      animation: blinkRed 1.2s infinite alternate;
+    }
+
+    .digital-clock {
+      font-family: monospace;
+      font-size: 2vw;
+      font-weight: 700;
+      color: var(--gold-bright);
+      text-shadow: var(--glow-gold);
+      letter-spacing: 0.05vw;
+    }
+
+    /* Speaker Profile Section in the middle */
+    .speaker-profile-box {
+      width: 100%;
+      margin: 3vh 0;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .sp-name {
+      font-size: 1.4vw;
+      font-weight: 800;
+      color: var(--text-white);
+      line-height: 1.3;
+    }
+
+    .sp-title {
+      font-size: 0.9vw;
+      color: var(--text-light);
+      opacity: 0.8;
+      margin-top: 1vh;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    @keyframes blinkRed {
+      from { opacity: 0.2; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1.1); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene-container transparent-bg">
+    <div class="masked-background">
+      <div class="circuits-layer looping-bg"></div>
+    </div>
+
+    <!-- Transparent cutout for webcam -->
+    <div class="cutout camera-cutout"></div>
+
+    <!-- Glowing frame overlay -->
+    <div class="frame-overlay camera-frame"></div>
+
+    <!-- Technical Sidebar -->
+    <div class="tech-sidebar">
+      <div class="logo">Summ<span>IT</span></div>
+      
+      <!-- Speaker Profile Box -->
+      <div class="speaker-profile-box" id="speaker-profile">
+        <div class="sp-name" id="sp-name-txt">🎙️ Expositor</div>
+        <div class="sp-title" id="sp-title-txt">Cargo / Organización</div>
+      </div>
+
+      <!-- Live Broadcast Tag & Real-time Clock -->
+      <div class="live-panel">
+        <div class="live-tag">
+          <div class="live-dot"></div>
+          En Vivo
+        </div>
+        <div class="digital-clock" id="live-clock">00:00:00</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../assets/vendor/gsap.min.js"></script>
+  <script src="../assets/js/utils.js"></script>
+  <script src="../assets/js/circuits-bg.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Initialize circuits background
+      const circuits = new CircuitsBG('.circuits-layer', { theme: 'magenta' });
+      circuits.setStatic();
+      setInterval(() => circuits.triggerDataFlow(), 3000);
+
+      // 2. Start digital clock ticker
+      startClock();
+
+      // 3. Load dynamic speakers details
+      const speakers = await Utils.getSpeakers();
+      const index = parseInt(Utils.getQueryParam('index')) || 0;
+      const showLabel = Utils.getQueryParam('show_label') !== 'false';
+
+      const profileBox = document.getElementById('speaker-profile');
+      
+      if (profileBox) {
+        if (!showLabel) {
+          profileBox.style.display = 'none';
+        } else if (speakers && speakers[index]) {
+          const sp = speakers[index];
+          document.getElementById('sp-name-txt').textContent = sp.name;
+          document.getElementById('sp-title-txt').textContent = sp.title;
+        }
+      }
+    });
+
+    function startClock() {
+      const clockEl = document.getElementById('live-clock');
+      function update() {
+        const now = new Date();
+        const hrs = String(now.getHours()).padStart(2, '0');
+        const mins = String(now.getMinutes()).padStart(2, '0');
+        const secs = String(now.getSeconds()).padStart(2, '0');
+        clockEl.textContent = `${hrs}:${mins}:${secs}`;
+      }
+      update();
+      setInterval(update, 1000);
+    }
+  </script>
+</body>
+</html>

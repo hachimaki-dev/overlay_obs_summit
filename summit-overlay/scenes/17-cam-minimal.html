@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SummIT — Webcam Minimalista</title>
+  
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  
+  <style>
+    body, html { background: transparent !important; }
+
+    .scene-container {
+      isolation: isolate;
+    }
+
+    .masked-background {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-purple-dark);
+      z-index: 1;
+      opacity: 0.85; /* Let some camera capture bleed through background edges if needed */
+    }
+
+    .cutout {
+      position: absolute;
+      background: black;
+      mix-blend-mode: destination-out;
+      z-index: 5;
+    }
+
+    /* Minimalist camera cutout (90vw width, 50.625vw height is exactly 16:9) */
+    .camera-cutout {
+      left: 5vw;
+      top: 5vh;
+      width: 90vw;
+      height: 50.625vw;
+      border-radius: 0.5vw;
+    }
+
+    .frame-overlay {
+      position: absolute;
+      z-index: 10;
+      pointer-events: none;
+      border-radius: 0.5vw;
+    }
+
+    /* Ultra thin glowing frame */
+    .camera-frame {
+      left: 5vw;
+      top: 5vh;
+      width: 90vw;
+      height: 50.625vw;
+      border: 2px solid rgba(255, 206, 107, 0.45);
+      box-shadow: 
+        0 0 20px rgba(242, 169, 59, 0.25), 
+        inset 0 0 10px rgba(242, 169, 59, 0.15);
+    }
+
+    /* Tech corner ticks */
+    .tech-bracket {
+      position: absolute;
+      width: 1.5vw;
+      height: 1.5vw;
+      z-index: 11;
+      border: 3px solid var(--magenta-base);
+      pointer-events: none;
+    }
+
+    .tick-tl { left: 4.5vw; top: 4vh; border-right: none; border-bottom: none; }
+    .tick-tr { right: 4.5vw; top: 4vh; border-left: none; border-bottom: none; }
+    .tick-bl { left: 4.5vw; bottom: 4vh; border-right: none; border-top: none; }
+    .tick-br { right: 4.5vw; bottom: 4vh; border-left: none; border-top: none; }
+
+    /* Animated current node traveling along the frame border */
+    .traveling-node {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold-bright);
+      box-shadow: 0 0 12px var(--gold-bright);
+      z-index: 12;
+      pointer-events: none;
+    }
+
+    /* Top watermark info (extremely minimal) */
+    .watermark-info {
+      position: absolute;
+      top: 1.5vh;
+      left: 6vw;
+      z-index: 10;
+      font-size: 0.8vw;
+      color: var(--text-light);
+      opacity: 0.55;
+      font-weight: 700;
+      letter-spacing: 0.15vw;
+      text-transform: uppercase;
+    }
+
+    /* Minimal floating speaker text block */
+    .floating-speaker-tag {
+      position: absolute;
+      bottom: 8vh;
+      left: 8vw;
+      z-index: 20;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.9), 0 4px 20px rgba(0,0,0,0.9);
+      transform: translateY(20px);
+      opacity: 0;
+    }
+
+    .sp-name {
+      font-size: 2vw;
+      font-weight: 800;
+      color: var(--gold-bright);
+      text-shadow: var(--glow-gold);
+    }
+
+    .sp-title {
+      font-size: 1.1vw;
+      color: var(--text-white);
+      opacity: 0.9;
+      font-weight: 600;
+      margin-top: 0.5vh;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene-container transparent-bg">
+    <!-- Semi-transparent dark background card wrapper -->
+    <div class="masked-background"></div>
+
+    <!-- Transparent cutouts -->
+    <div class="cutout camera-cutout"></div>
+
+    <!-- Glowing frame overlays -->
+    <div class="frame-overlay camera-frame"></div>
+    <div class="tech-bracket tick-tl"></div>
+    <div class="tech-bracket tick-tr"></div>
+    <div class="tech-bracket tick-bl"></div>
+    <div class="tech-bracket tick-br"></div>
+
+    <!-- Traveling data nodes crawling on borders -->
+    <div class="traveling-node" id="spark-node-1"></div>
+    <div class="traveling-node" id="spark-node-2"></div>
+
+    <!-- Top Watermark -->
+    <div class="watermark-info">SummIT 2026 // Duoc UC Puerto Montt // Live Stream</div>
+
+    <!-- Floating Name Tag -->
+    <div class="floating-speaker-tag" id="speaker-tag">
+      <div class="sp-name" id="sp-name-txt">🎙️ Expositor</div>
+      <div class="sp-title" id="sp-title-txt">Cargo / Organización</div>
+    </div>
+  </div>
+
+  <script src="../assets/vendor/gsap.min.js"></script>
+  <script src="../assets/js/utils.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Setup border crawling sparks animation
+      animateBorderSparks();
+
+      // 2. Load dynamic speaker details
+      const speakers = await Utils.getSpeakers();
+      const index = parseInt(Utils.getQueryParam('index')) || 0;
+      const showLabel = Utils.getQueryParam('show_label') !== 'false';
+
+      const speakerTag = document.getElementById('speaker-tag');
+      
+      if (speakerTag) {
+        if (!showLabel) {
+          speakerTag.style.display = 'none';
+        } else {
+          if (speakers && speakers[index]) {
+            const sp = speakers[index];
+            document.getElementById('sp-name-txt').textContent = `🎙️ ${sp.name}`;
+            document.getElementById('sp-title-txt').textContent = sp.title;
+          }
+          
+          gsap.to(speakerTag, {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: 'power3.out',
+            delay: 0.5
+          });
+        }
+      }
+    });
+
+    function animateBorderSparks() {
+      // Dimensions of frame: left: 5vw, top: 5vh, width: 90vw, height: 50.625vw
+      // We will translate vw/vh coordinates to percentages for CSS positioning
+      // Frame bounds:
+      // X: 5% to 95% of viewport width
+      // Y: 5% of viewport height to 5% + 50.625vw of height
+      // Let's get the absolute pixel coordinates of the frame box
+      const rect = {
+        left: window.innerWidth * 0.05,
+        top: window.innerHeight * 0.05,
+        width: window.innerWidth * 0.90,
+        height: window.innerWidth * 0.50625
+      };
+
+      const node1 = document.getElementById('spark-node-1');
+      const node2 = document.getElementById('spark-node-2');
+
+      // Helper function to animate a node around the rectangle
+      // We animate: Top-Left -> Top-Right -> Bottom-Right -> Bottom-Left -> Top-Left
+      function runCircuit1() {
+        const tl = gsap.timeline({ onComplete: runCircuit1 });
+        
+        // Node 1 path (clockwise starting Top-Left)
+        tl.set(node1, { left: rect.left - 4, top: rect.top - 4 })
+          .to(node1, { left: rect.left + rect.width - 4, duration: 4, ease: 'none' })
+          .to(node1, { top: rect.top + rect.height - 4, duration: 2.5, ease: 'none' })
+          .to(node1, { left: rect.left - 4, duration: 4, ease: 'none' })
+          .to(node1, { top: rect.top - 4, duration: 2.5, ease: 'none' });
+      }
+
+      function runCircuit2() {
+        const tl = gsap.timeline({ onComplete: runCircuit2 });
+        
+        // Node 2 path (counter-clockwise starting Bottom-Right)
+        tl.set(node2, { left: rect.left + rect.width - 4, top: rect.top + rect.height - 4 })
+          .to(node2, { left: rect.left - 4, duration: 4, ease: 'none' })
+          .to(node2, { top: rect.top - 4, duration: 2.5, ease: 'none' })
+          .to(node2, { left: rect.left + rect.width - 4, duration: 4, ease: 'none' })
+          .to(node2, { top: rect.top + rect.height - 4, duration: 2.5, ease: 'none' });
+      }
+
+      // Initialize
+      runCircuit1();
+      // Start node 2 slightly offset/delayed or counter-direction
+      runCircuit2();
+
+      // Handle window resizing
+      window.addEventListener('resize', () => {
+        gsap.killTweensOf([node1, node2]);
+        rect.left = window.innerWidth * 0.05;
+        rect.top = window.innerHeight * 0.05;
+        rect.width = window.innerWidth * 0.90;
+        rect.height = window.innerWidth * 0.50625;
+        runCircuit1();
+        runCircuit2();
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SummIT — Webcam Centrada (AI Focus)</title>
+  
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/circuits.css">
+  
+  <style>
+    body, html { background: transparent !important; }
+
+    .scene-container {
+      isolation: isolate;
+    }
+
+    .masked-background {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-purple-dark);
+      z-index: 1;
+    }
+
+    /* Canvas for neural network particle simulation */
+    #neural-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    .cutout {
+      position: absolute;
+      background: black;
+      mix-blend-mode: destination-out;
+      z-index: 5;
+    }
+
+    /* Huge centered 16:9 camera cutout (78vw width, 43.875vw height) */
+    .camera-cutout {
+      left: 11vw;
+      top: 14vh;
+      width: 78vw;
+      height: 43.875vw;
+      border-radius: 1vw;
+    }
+
+    .frame-overlay {
+      position: absolute;
+      z-index: 10;
+      pointer-events: none;
+      border-radius: 1vw;
+    }
+
+    /* Premium dual glow frame around the centered camera */
+    .camera-frame {
+      left: 11vw;
+      top: 14vh;
+      width: 78vw;
+      height: 43.875vw;
+      border: 4px solid var(--gold-bright);
+      box-shadow: 
+        0 0 35px rgba(242, 169, 59, 0.5), 
+        inset 0 0 20px rgba(242, 169, 59, 0.4),
+        0 0 0 8px rgba(185, 29, 115, 0.25);
+    }
+
+    /* Tech crosshairs for camera corners */
+    .corner-bracket {
+      position: absolute;
+      width: 2vw;
+      height: 2vw;
+      z-index: 11;
+      border: 3px solid var(--magenta-base);
+      pointer-events: none;
+    }
+
+    .bracket-tl { left: 10vw; top: 12vh; border-right: none; border-bottom: none; }
+    .bracket-tr { right: 10vw; top: 12vh; border-left: none; border-bottom: none; }
+    .bracket-bl { left: 10vw; bottom: 38vh; border-right: none; border-top: none; }
+    .bracket-br { right: 10vw; bottom: 38vh; border-left: none; border-top: none; }
+
+    /* Header Bar */
+    .header-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 9vh;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 11vw;
+      background: linear-gradient(to bottom, rgba(26, 10, 46, 0.9) 0%, rgba(26, 10, 46, 0) 100%);
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 2vw;
+      font-weight: 800;
+      color: var(--text-white);
+    }
+
+    .logo span {
+      background: linear-gradient(135deg, var(--gold-bright), var(--gold-dark));
+      border-radius: 4px;
+      padding: 0 0.4vw;
+      color: var(--bg-purple-dark);
+      margin-left: 0.2vw;
+    }
+
+    .tech-tag {
+      color: var(--magenta-base);
+      font-weight: 800;
+      font-size: 1vw;
+      letter-spacing: 0.1vw;
+      text-transform: uppercase;
+      text-shadow: var(--glow-magenta);
+    }
+
+    /* Speaker label floating under the camera cutout */
+    .speaker-card-centered {
+      position: absolute;
+      top: 76vh;
+      left: 25vw;
+      width: 50vw;
+      background: rgba(26, 10, 46, 0.9);
+      border: 2px solid var(--gold-base);
+      border-radius: 8px;
+      padding: 1.5vh 2vw;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), var(--glow-gold);
+      backdrop-filter: blur(10px);
+      z-index: 20;
+      transform: translateY(20px);
+      opacity: 0;
+    }
+
+    .speaker-name {
+      font-size: 1.6vw;
+      font-weight: 800;
+      color: var(--text-white);
+      text-shadow: 0 0 10px rgba(242, 169, 59, 0.3);
+    }
+
+    .speaker-title {
+      font-size: 1vw;
+      color: var(--text-light);
+      opacity: 0.85;
+      margin-top: 0.5vh;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene-container transparent-bg">
+    <div class="masked-background">
+      <!-- Standard circuits underneath -->
+      <div class="circuits-layer looping-bg"></div>
+      <!-- Canvas overlay for AI particles -->
+      <canvas id="neural-canvas"></canvas>
+    </div>
+
+    <!-- Cutout for full camera stream -->
+    <div class="cutout camera-cutout"></div>
+
+    <!-- Glowing frame & decorative brackets -->
+    <div class="frame-overlay camera-frame"></div>
+    <div class="corner-bracket bracket-tl"></div>
+    <div class="corner-bracket bracket-tr"></div>
+    <div class="corner-bracket bracket-bl"></div>
+    <div class="corner-bracket bracket-br"></div>
+
+    <!-- Header bar -->
+    <div class="header-bar">
+      <div class="logo">Summ<span>IT</span></div>
+      <div class="tech-tag">Cámara Expositor // IA Aplicada</div>
+    </div>
+
+    <!-- Dynamic Speaker Box -->
+    <div class="speaker-card-centered" id="speaker-card">
+      <div class="speaker-name" id="sp-name">🎙️ Cargando Expositor</div>
+      <div class="speaker-title" id="sp-title">Cargo / Organización</div>
+    </div>
+  </div>
+
+  <script src="../assets/vendor/gsap.min.js"></script>
+  <script src="../assets/js/utils.js"></script>
+  <script src="../assets/js/circuits-bg.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Initialize drawing circuits
+      const circuits = new CircuitsBG('.circuits-layer', { theme: 'magenta' });
+      circuits.setStatic();
+      setInterval(() => circuits.triggerDataFlow(), 3500);
+
+      // 2. Setup AI Neural Network Canvas Particle Simulation
+      setupNeuralCanvas();
+
+      // 3. Load dynamic speakers details
+      const speakers = await Utils.getSpeakers();
+      const index = parseInt(Utils.getQueryParam('index')) || 0;
+      const showLabel = Utils.getQueryParam('show_label') !== 'false';
+
+      const labelCard = document.getElementById('speaker-card');
+      
+      if (labelCard) {
+        if (!showLabel) {
+          labelCard.style.display = 'none';
+        } else {
+          if (speakers && speakers[index]) {
+            const sp = speakers[index];
+            document.getElementById('sp-name').textContent = `🎙️ ${sp.name}`;
+            document.getElementById('sp-title').textContent = sp.title;
+          }
+          
+          gsap.to(labelCard, {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: 'back.out(1.2)',
+            delay: 0.5
+          });
+        }
+      }
+    });
+
+    // Neural Network Canvas Logic
+    function setupNeuralCanvas() {
+      const canvas = document.getElementById('neural-canvas');
+      const ctx = canvas.getContext('2d');
+      
+      let width = (canvas.width = window.innerWidth);
+      let height = (canvas.height = window.innerHeight);
+
+      window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      });
+
+      const particles = [];
+      const particleCount = 45;
+      const connectionDist = 180;
+      
+      // Theme colors mapping
+      const colors = ['#f2a93b', '#b91d73', '#ffce6b', '#ff54b0'];
+
+      class Particle {
+        constructor() {
+          this.x = Math.random() * width;
+          this.y = Math.random() * height;
+          this.vx = (Math.random() - 0.5) * 0.8;
+          this.vy = (Math.random() - 0.5) * 0.8;
+          this.radius = Math.random() * 3 + 2;
+          this.color = colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        update() {
+          this.x += this.vx;
+          this.y += this.vy;
+
+          if (this.x < 0 || this.x > width) this.vx *= -1;
+          if (this.y < 0 || this.y > height) this.vy *= -1;
+        }
+
+        draw() {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          ctx.fillStyle = this.color;
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = this.color;
+          ctx.fill();
+          ctx.shadowBlur = 0; // reset
+        }
+      }
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle());
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, width, height);
+
+        // Update and draw particles
+        particles.forEach(p => {
+          p.update();
+          p.draw();
+        });
+
+        // Draw connections
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < connectionDist) {
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              const alpha = (1 - dist / connectionDist) * 0.25;
+              ctx.strokeStyle = `rgba(242, 169, 59, ${alpha})`;
+              ctx.lineWidth = 1;
+              ctx.stroke();
+            }
+          }
+        }
+
+        requestAnimationFrame(animate);
+      }
+
+      animate();
+    }
+  </script>
+</body>
+</html>
