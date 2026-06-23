@@ -124,39 +124,6 @@
       text-transform: uppercase;
       text-shadow: var(--glow-magenta);
     }
-
-    /* Speaker label floating under the camera cutout */
-    .speaker-card-centered {
-      position: absolute;
-      top: 76vh;
-      left: 25vw;
-      width: 50vw;
-      background: rgba(26, 10, 46, 0.9);
-      border: 2px solid var(--gold-base);
-      border-radius: 8px;
-      padding: 1.5vh 2vw;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), var(--glow-gold);
-      backdrop-filter: blur(10px);
-      z-index: 20;
-      transform: translateY(20px);
-      opacity: 0;
-    }
-
-    .speaker-name {
-      font-size: 1.6vw;
-      font-weight: 800;
-      color: var(--text-white);
-      text-shadow: 0 0 10px rgba(242, 169, 59, 0.3);
-    }
-
-    .speaker-title {
-      font-size: 1vw;
-      color: var(--text-light);
-      opacity: 0.85;
-      margin-top: 0.5vh;
-      font-weight: 600;
-    }
   </style>
 </head>
 <body>
@@ -184,12 +151,6 @@
       <div class="logo">Summ<span>IT</span></div>
       <div class="tech-tag">Cámara Expositor // IA Aplicada</div>
     </div>
-
-    <!-- Dynamic Speaker Box -->
-    <div class="speaker-card-centered" id="speaker-card">
-      <div class="speaker-name" id="sp-name">🎙️ Cargando Expositor</div>
-      <div class="speaker-title" id="sp-title">Cargo / Organización</div>
-    </div>
   </div>
 
   <script src="../assets/vendor/gsap.min.js"></script>
@@ -204,33 +165,6 @@
 
       // 2. Setup AI Neural Network Canvas Particle Simulation
       setupNeuralCanvas();
-
-      // 3. Load dynamic speakers details
-      const speakers = await Utils.getSpeakers();
-      const index = parseInt(Utils.getQueryParam('index')) || 0;
-      const showLabel = Utils.getQueryParam('show_label') !== 'false';
-
-      const labelCard = document.getElementById('speaker-card');
-      
-      if (labelCard) {
-        if (!showLabel) {
-          labelCard.style.display = 'none';
-        } else {
-          if (speakers && speakers[index]) {
-            const sp = speakers[index];
-            document.getElementById('sp-name').textContent = `🎙️ ${sp.name}`;
-            document.getElementById('sp-title').textContent = sp.title;
-          }
-          
-          gsap.to(labelCard, {
-            y: 0,
-            opacity: 1,
-            duration: 0.8,
-            ease: 'back.out(1.2)',
-            delay: 0.5
-          });
-        }
-      }
     });
 
     // Neural Network Canvas Logic

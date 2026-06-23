@@ -141,30 +141,40 @@
       letter-spacing: 0.05vw;
     }
 
-    /* Speaker Profile Section in the middle */
-    .speaker-profile-box {
+    /* General Metadata Section in the middle */
+    .sidebar-mid-metadata {
       width: 100%;
       margin: 3vh 0;
       flex-grow: 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      gap: 1vh;
     }
 
-    .sp-name {
-      font-size: 1.4vw;
+    .meta-event-title {
+      font-size: 1.3vw;
       font-weight: 800;
-      color: var(--text-white);
+      color: var(--gold-bright);
       line-height: 1.3;
+      text-transform: uppercase;
     }
 
-    .sp-title {
-      font-size: 0.9vw;
-      color: var(--text-light);
-      opacity: 0.8;
-      margin-top: 1vh;
+    .meta-organizer {
+      font-size: 0.95vw;
+      color: var(--text-white);
+      opacity: 0.9;
       font-weight: 600;
-      line-height: 1.4;
+    }
+
+    .meta-school {
+      font-size: 0.8vw;
+      color: var(--text-light);
+      opacity: 0.7;
+      font-weight: 500;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 1vh;
+      margin-top: 0.5vh;
     }
 
     @keyframes blinkRed {
@@ -190,10 +200,11 @@
     <div class="tech-sidebar">
       <div class="logo">Summ<span>IT</span></div>
       
-      <!-- Speaker Profile Box -->
-      <div class="speaker-profile-box" id="speaker-profile">
-        <div class="sp-name" id="sp-name-txt">🎙️ Expositor</div>
-        <div class="sp-title" id="sp-title-txt">Cargo / Organización</div>
+      <!-- Metadata Box (No Speaker details) -->
+      <div class="sidebar-mid-metadata">
+        <div class="meta-event-title">5ta Versión</div>
+        <div class="meta-organizer">Duoc UC Puerto Montt</div>
+        <div class="meta-school">Escuela de Informática y Telecomunicaciones</div>
       </div>
 
       <!-- Live Broadcast Tag & Real-time Clock -->
@@ -219,23 +230,6 @@
 
       // 2. Start digital clock ticker
       startClock();
-
-      // 3. Load dynamic speakers details
-      const speakers = await Utils.getSpeakers();
-      const index = parseInt(Utils.getQueryParam('index')) || 0;
-      const showLabel = Utils.getQueryParam('show_label') !== 'false';
-
-      const profileBox = document.getElementById('speaker-profile');
-      
-      if (profileBox) {
-        if (!showLabel) {
-          profileBox.style.display = 'none';
-        } else if (speakers && speakers[index]) {
-          const sp = speakers[index];
-          document.getElementById('sp-name-txt').textContent = sp.name;
-          document.getElementById('sp-title-txt').textContent = sp.title;
-        }
-      }
     });
 
     function startClock() {

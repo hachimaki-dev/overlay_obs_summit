@@ -321,15 +321,12 @@
         });
       }
 
-      // Función para actualizar los enlaces de los presentadores y cámaras individuales
+      // Función para actualizar los enlaces de los presentadores
       const toggleBarInput = document.getElementById('toggle-presenter-bar');
       const speakerSelect = document.getElementById('presenter-speaker-select');
       const btnLeft = document.getElementById('btn-presenter-left');
       const btnRight = document.getElementById('btn-presenter-right');
       const btnCinema = document.getElementById('btn-presenter-cinema');
-      const btnCamCentered = document.getElementById('btn-cam-centered');
-      const btnCamSidebar = document.getElementById('btn-cam-sidebar');
-      const btnCamMinimal = document.getElementById('btn-cam-minimal');
 
       function updatePresenterLinks() {
         const isChecked = toggleBarInput ? toggleBarInput.checked : true;
@@ -340,9 +337,6 @@
         if (btnLeft) btnLeft.href = `scenes/10-pip-presenter.html${suffix}`;
         if (btnRight) btnRight.href = `scenes/10-pip-presenter-right.html${suffix}`;
         if (btnCinema) btnCinema.href = `scenes/10-pip-presenter-cinema.html${suffix}`;
-        if (btnCamCentered) btnCamCentered.href = `scenes/15-cam-centered.html${suffix}`;
-        if (btnCamSidebar) btnCamSidebar.href = `scenes/16-cam-sidebar.html${suffix}`;
-        if (btnCamMinimal) btnCamMinimal.href = `scenes/17-cam-minimal.html${suffix}`;
       }
 
       if (toggleBarInput) toggleBarInput.addEventListener('change', updatePresenterLinks);
