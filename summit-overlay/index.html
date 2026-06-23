@@ -190,10 +190,15 @@
         <a href="scenes/11-pip-panel.html" target="_blank" class="action-btn">Abrir Overlay</a>
       </div>
       
-      <div class="card">
+      <div class="card" style="grid-row: span 2;">
         <h2>12. Cronograma / Agenda <span class="duration-badge">Full Screen</span></h2>
-        <p>Pantalla completa interactiva que muestra el itinerario de charlas. Resalta la charla activa con la URL ?current=2.</p>
-        <a href="scenes/12-agenda.html?current=2" target="_blank" class="action-btn">Abrir Overlay</a>
+        <p>Itinerario del evento en pantalla completa. Elige el modo para abrir en OBS:</p>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;" id="agenda-links-list">
+          <a href="scenes/12-agenda.html" target="_blank" class="action-btn" style="background: linear-gradient(135deg, var(--magenta-base), var(--magenta-dark)); color: white; display: block; text-align: center; text-decoration: none; padding: 10px; border-radius: 6px; font-weight: bold; margin-bottom: 8px;">
+            📁 Agenda Limpia (Sin resaltar nada)
+          </a>
+          <span style="font-size: 0.85rem; color: var(--gold-bright); margin-top: 5px; font-weight: bold; border-bottom: 1px solid rgba(242,169,59,0.3); padding-bottom: 4px; display: block;">Destacar actividad actual:</span>
+        </div>
       </div>
       
       <div class="card">
@@ -234,6 +239,32 @@
         });
       } else {
         speakersContainer.innerHTML = '<p style="grid-column: 1/-1; color: var(--magenta-base);">Error cargando speakers.json. Asegúrate de ejecutar este panel mediante un servidor local (ej: Live Server o Python http.server) para que Fetch API funcione correctamente.</p>';
+      }
+
+      // Cargar agenda dinámicamente en el panel
+      const schedule = await Utils.getSchedule();
+      const agendaLinksList = document.getElementById('agenda-links-list');
+      if (schedule && schedule.length > 0 && agendaLinksList) {
+        schedule.forEach((item, index) => {
+          const link = document.createElement('a');
+          link.href = `scenes/12-agenda.html?current=${index}`;
+          link.target = '_blank';
+          link.style.cssText = 'color: #f8fafc; text-decoration: none; padding: 6px 10px; background: rgba(61, 26, 92, 0.4); border-radius: 4px; font-size: 0.85rem; display: flex; justify-content: space-between; border-left: 3px solid var(--gold-base); transition: all 0.2s; border-top: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); margin-top: 4px;';
+          
+          let displaySpeaker = item.speaker ? ` (${item.speaker})` : '';
+          link.innerHTML = `<span>📍 <strong>${item.time}</strong> - ${item.activity}${displaySpeaker}</span> <span style="color:var(--gold-bright); font-size:0.75rem; font-weight:bold; text-transform:uppercase;">Destacar</span>`;
+          
+          link.addEventListener('mouseenter', () => { 
+            link.style.background = 'rgba(185, 29, 115, 0.25)'; 
+            link.style.borderLeftColor = 'var(--magenta-base)';
+          });
+          link.addEventListener('mouseleave', () => { 
+            link.style.background = 'rgba(61, 26, 92, 0.4)'; 
+            link.style.borderLeftColor = 'var(--gold-base)';
+          });
+          
+          agendaLinksList.appendChild(link);
+        });
       }
     });
   </script>

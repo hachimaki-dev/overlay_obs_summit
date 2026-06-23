@@ -259,7 +259,10 @@
       
       // Determine active item from URL query parameter (?current=3)
       const currentParam = Utils.getQueryParam('current');
-      const currentIndex = currentParam !== null ? parseInt(currentParam) : -1;
+      let currentIndex = -1;
+      if (currentParam !== null && currentParam !== 'none' && !isNaN(currentParam) && currentParam.trim() !== '') {
+        currentIndex = parseInt(currentParam);
+      }
 
       if (schedule && schedule.length > 0) {
         schedule.forEach((item, index) => {
