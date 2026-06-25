@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duckie Day — Cámara + Presentación</title>
+  
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  
+  <style>
+    :root {
+      --duckie-yellow: #ffdb58;
+      --duckie-blue-electric: #2b78e4;
+      --duckie-blue-light: #8cd3ff;
+      --duckie-bg-dark: #000c1a;
+      --font-family: 'Montserrat', 'Inter', sans-serif;
+    }
+
+    body, html { 
+      background: transparent !important; 
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-family);
+    }
+
+    .scene-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      isolation: isolate;
+    }
+
+    /* Background video layer */
+    .masked-background {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: var(--duckie-bg-dark);
+      z-index: 1;
+    }
+
+    .bg-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.85;
+      mix-blend-mode: screen;
+    }
+
+    /* Cutouts to punch holes for OBS sources */
+    .cutout {
+      position: absolute;
+      background: black;
+      mix-blend-mode: destination-out;
+      z-index: 5;
+    }
+
+    /* Left camera cutout: 32vw width, 18vw height (16:9) */
+    .cam-left-cutout {
+      left: 5vw;
+      top: 34vh;
+      width: 32vw;
+      height: 18vw;
+      border-radius: 0.8vw;
+    }
+
+    /* Right presentation cutout: 54vw width, 30.375vw height (16:9) */
+    .presentation-cutout {
+      left: 41vw;
+      top: 23vh;
+      width: 54vw;
+      height: 30.375vw;
+      border-radius: 0.8vw;
+    }
+
+    /* Decorative side pillars */
+    .pillar {
+      position: absolute;
+      top: 5vh;
+      width: 2.6vw;
+      height: 90vh;
+      z-index: 8;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(43, 120, 228, 0.25);
+      border: 1px solid rgba(43, 120, 228, 0.15);
+      opacity: 0;
+    }
+
+    .pillar-left { left: 1.2vw; }
+    .pillar-right { right: 1.2vw; }
+
+    .pillar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.7) contrast(1.1);
+    }
+
+    /* Header Bar */
+    .header-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 12vh;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5vw;
+      background: linear-gradient(to bottom, rgba(0, 12, 26, 0.95) 70%, rgba(0, 12, 26, 0));
+      border-bottom: 2px solid rgba(43, 120, 228, 0.3);
+      z-index: 10;
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 1vw;
+    }
+
+    .logo-img {
+      height: 8vh;
+      width: auto;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+    }
+
+    .panel-title {
+      font-size: 1.6vw;
+      font-weight: 800;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.1vw;
+      border-left: 4px solid var(--duckie-yellow);
+      padding-left: 1vw;
+      text-shadow: 0 0 10px rgba(255, 219, 88, 0.2);
+    }
+
+    .live-badge {
+      background: rgba(255, 59, 48, 0.15);
+      border: 1px solid #ff3b30;
+      color: #ff3b30;
+      padding: 0.4vh 0.8vw;
+      border-radius: 4px;
+      font-size: 0.75vw;
+      font-weight: bold;
+      letter-spacing: 0.1vw;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.4vw;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      background-color: #ff3b30;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    /* Container for styling overlays on top of the cutouts */
+    .frame-container {
+      position: absolute;
+      z-index: 10;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .frame-left {
+      left: 5vw;
+      top: 34vh;
+      width: 32vw;
+      height: 18vw;
+    }
+
+    .frame-right {
+      left: 41vw;
+      top: 23vh;
+      width: 54vw;
+      height: 30.375vw;
+    }
+
+    /* Glowing borders */
+    .border-glow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 0.8vw;
+    }
+
+    .frame-left .border-glow {
+      border: 3px solid var(--duckie-blue-electric);
+      box-shadow: 
+        0 0 20px rgba(43, 120, 228, 0.5), 
+        inset 0 0 10px rgba(43, 120, 228, 0.3);
+    }
+
+    .frame-right .border-glow {
+      border: 3px solid var(--duckie-yellow);
+      box-shadow: 
+        0 0 25px rgba(255, 219, 88, 0.4), 
+        inset 0 0 12px rgba(255, 219, 88, 0.2);
+    }
+
+    /* Corner tech brackets */
+    .tech-bracket {
+      position: absolute;
+      width: 1.5vw;
+      height: 1.5vw;
+      border: 3px solid var(--duckie-blue-light);
+      z-index: 12;
+    }
+
+    .tick-tl { left: -3px; top: -3px; border-right: none; border-bottom: none; border-top-left-radius: 0.8vw; }
+    .tick-tr { right: -3px; top: -3px; border-left: none; border-bottom: none; border-top-right-radius: 0.8vw; }
+    .tick-bl { left: -3px; bottom: -3px; border-right: none; border-top: none; border-bottom-left-radius: 0.8vw; }
+    .tick-br { right: -3px; bottom: -3px; border-left: none; border-top: none; border-bottom-right-radius: 0.8vw; }
+
+    /* Label text for the presentation frame */
+    .frame-tag {
+      position: absolute;
+      top: -2.5vh;
+      right: 1vw;
+      background: var(--duckie-yellow);
+      color: #000c1a;
+      font-size: 0.75vw;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05vw;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+
+    /* Speaker lower third card */
+    .speaker-card {
+      position: absolute;
+      top: 68vh;
+      left: 5vw;
+      width: 32vw;
+      background: rgba(0, 12, 26, 0.85);
+      border-left: 5px solid var(--duckie-yellow);
+      border-top: 1px solid rgba(255, 219, 88, 0.2);
+      border-right: 1px solid rgba(255, 219, 88, 0.1);
+      border-bottom: 1px solid rgba(255, 219, 88, 0.1);
+      border-radius: 0 10px 10px 0;
+      padding: 1.5vh 1.5vw;
+      z-index: 10;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .speaker-name {
+      font-size: 1.5vw;
+      font-weight: 800;
+      color: #ffffff;
+      text-shadow: 0 0 8px rgba(255,255,255,0.2);
+      margin-bottom: 0.3vh;
+    }
+
+    .speaker-title {
+      font-size: 0.9vw;
+      color: var(--duckie-blue-light);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05vw;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.3; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 0.3; transform: scale(0.8); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene-container transparent-bg">
+    <!-- Dark background with video loop -->
+    <div class="masked-background">
+      <video class="bg-video" autoplay loop muted playsinline>
+        <source src="../../duckie day/video_loop.mp4" type="video/mp4">
+      </video>
+    </div>
+
+    <!-- Cutouts to punch transparent holes in background -->
+    <div class="cutout cam-left-cutout"></div>
+    <div class="cutout presentation-cutout"></div>
+
+    <!-- Decorative Pillars on borders using Pendon Led and Podio -->
+    <div class="pillar pillar-left" id="pillar-l">
+      <img src="../../duckie day/Pendon Led.png" alt="Pendón Led">
+    </div>
+    <div class="pillar pillar-right" id="pillar-r">
+      <img src="../../duckie day/Podio (1).png" alt="Podio">
+    </div>
+
+    <!-- Left Frame Overlay (Camera) -->
+    <div class="frame-container frame-left" id="frame-l">
+      <div class="border-glow"></div>
+      <div class="tech-bracket tick-tl" style="border-color: var(--duckie-yellow);"></div>
+      <div class="tech-bracket tick-tr" style="border-color: var(--duckie-yellow);"></div>
+      <div class="tech-bracket tick-bl" style="border-color: var(--duckie-yellow);"></div>
+      <div class="tech-bracket tick-br" style="border-color: var(--duckie-yellow);"></div>
+    </div>
+    <!-- Right Frame Overlay (Presentation) -->
+    <div class="frame-container frame-right" id="frame-r">
+      <div class="border-glow"></div>
+      <div class="tech-bracket tick-tl" style="border-color: var(--duckie-blue-light);"></div>
+      <div class="tech-bracket tick-tr" style="border-color: var(--duckie-blue-light);"></div>
+      <div class="tech-bracket tick-bl" style="border-color: var(--duckie-blue-light);"></div>
+      <div class="tech-bracket tick-br" style="border-color: var(--duckie-blue-light);"></div>
+      <div class="frame-tag">PRESENTACIÓN</div>
+    </div>
+  </div>
+
+  <script src="../assets/vendor/gsap.min.js"></script>
+  <script src="../assets/js/utils.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. GSAP Entrance animations
+      const tl = gsap.timeline({ delay: 0.3 });
+
+      // Animate Pillars
+      tl.to('.pillar', {
+        opacity: 1,
+        duration: 0.8,
+        ease: 'power2.out',
+        stagger: 0.15
+      });
+
+      // Animate Camera Frames
+      tl.to('.frame-container', {
+        opacity: 1,
+        duration: 0.8,
+        ease: 'power3.out',
+        stagger: 0.2
+      }, '-=0.4');
+    });
+  </script>
+</body>
+</html>

@@ -113,6 +113,22 @@
       color: var(--magenta-base);
     }
     
+    .duckie-launch-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      padding: 10px 20px;
+      border-radius: 30px;
+      transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+      margin-top: 15px;
+      font-size: 1rem;
+    }
+    .duckie-launch-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
   </style>
 </head>
 <body>
@@ -121,6 +137,14 @@
     <div class="dashboard-header">
       <h1 class="title-glow">SummIT Overlays <span class="text-gold">Panel</span></h1>
       <p>Control central para fuentes de navegador en OBS Studio</p>
+      <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
+        <a href="#duckie-section" class="duckie-launch-btn" style="background: #ffdb58; color: #001f3f; box-shadow: 0 4px 15px rgba(255, 219, 88, 0.3);">
+          🦆 Ir a Duckie Day
+        </a>
+        <button onclick="launchDuckieOverlays()" class="duckie-launch-btn" style="background: #2b78e4; color: white; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(43, 120, 228, 0.3);">
+          🚀 Lanzar Ambos Overlays Duckie
+        </button>
+      </div>
     </div>
     
     <div class="grid" id="overlays-grid">
@@ -259,12 +283,31 @@
       <!-- Contenedor para inyectar dinámicamente las tarjetas de los speakers -->
       <h2 class="section-title">Fichas Individuales por Speaker (04-speaker-card)</h2>
       <div id="speakers-container" style="display: contents;"></div>
+
+      <h2 class="section-title" id="duckie-section" style="color: #2b78e4; border-color: rgba(43, 120, 228, 0.3); text-shadow: 0 0 10px rgba(43,120,228,0.5);">🦆 Duckie Day Puerto Montt</h2>
+      
+      <div class="card" style="border-color: rgba(255, 219, 88, 0.4);">
+        <h2 style="color: #ffdb58;">Main Camera <span class="duration-badge" style="background: rgba(43,120,228,0.3); border-color: #2b78e4; color: white;">Loop</span></h2>
+        <p>Cámara principal a pantalla completa con marco y decoración Duckie Day.</p>
+        <a href="scenes/duckie-main.html" target="_blank" class="action-btn" style="background: linear-gradient(135deg, #ffdb58, #e6c200); color: #001f3f;">Abrir Overlay</a>
+      </div>
+      
+      <div class="card" style="border-color: rgba(43, 120, 228, 0.4);">
+        <h2 style="color: #2b78e4;">PiP Presentador <span class="duration-badge" style="background: rgba(255,219,88,0.3); border-color: #ffdb58; color: #ffdb58;">PiP</span></h2>
+        <p>Pantalla dividida con espacio amplio para presentación y cámara lateral. Estilo Duckie Day.</p>
+        <a href="scenes/duckie-pip.html" target="_blank" class="action-btn" style="background: linear-gradient(135deg, #2b78e4, #1a5bb8); color: white;">Abrir Overlay</a>
+      </div>
       
     </div>
   </div>
 
   <script src="assets/js/utils.js"></script>
   <script>
+    function launchDuckieOverlays() {
+      window.open('scenes/duckie-main.html', '_blank');
+      window.open('scenes/duckie-pip.html', '_blank');
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
       const speakersContainer = document.getElementById('speakers-container');
       const speakers = await Utils.getSpeakers();

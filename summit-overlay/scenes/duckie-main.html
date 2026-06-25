@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duckie Day — Cámara Principal</title>
+  
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  
+  <style>
+    :root {
+      --duckie-yellow: #ffdb58;
+      --duckie-blue-electric: #2b78e4;
+      --duckie-blue-light: #8cd3ff;
+      --duckie-bg-dark: #000c1a;
+      --font-family: 'Montserrat', 'Inter', sans-serif;
+    }
+
+    body, html { 
+      background: transparent !important; 
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-family);
+    }
+
+    .scene-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      isolation: isolate;
+    }
+
+    /* Video background container */
+    .masked-background {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: var(--duckie-bg-dark);
+      z-index: 1;
+    }
+
+    .bg-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.85;
+      mix-blend-mode: screen; /* blend with dark background */
+    }
+
+    /* Cutout to punch transparent window in the background for camera */
+    .cutout {
+      position: absolute;
+      background: black;
+      mix-blend-mode: destination-out;
+      z-index: 5;
+    }
+
+    /* Camera cutout (86vw width, 48.375vw height is 16:9 aspect ratio) */
+    .camera-cutout {
+      left: 7vw;
+      top: 7vh;
+      width: 86vw;
+      height: 48.375vw;
+      border-radius: 1vw;
+    }
+
+    /* Glowing border overlayed on top of cutout */
+    .frame-overlay {
+      position: absolute;
+      z-index: 10;
+      pointer-events: none;
+      border-radius: 1vw;
+      opacity: 0;
+      transform: scale(0.98);
+    }
+
+    .camera-frame {
+      left: 7vw;
+      top: 7vh;
+      width: 86vw;
+      height: 48.375vw;
+      border: 3px solid var(--duckie-blue-electric);
+      box-shadow: 
+        0 0 25px rgba(43, 120, 228, 0.6), 
+        inset 0 0 15px rgba(43, 120, 228, 0.4);
+    }
+
+    /* Ticks in yellow at the corners */
+    .tech-bracket {
+      position: absolute;
+      width: 2vw;
+      height: 2vw;
+      z-index: 11;
+      border: 4px solid var(--duckie-yellow);
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .tick-tl { left: 6.7vw; top: 6.5vh; border-right: none; border-bottom: none; border-top-left-radius: 1.2vw; }
+    .tick-tr { right: 6.7vw; top: 6.5vh; border-left: none; border-bottom: none; border-top-right-radius: 1.2vw; }
+    .tick-bl { left: 6.7vw; bottom: calc(100vh - 7vh - 48.375vw - 0.5vh); border-right: none; border-top: none; border-bottom-left-radius: 1.2vw; }
+    .tick-br { right: 6.7vw; bottom: calc(100vh - 7vh - 48.375vw - 0.5vh); border-left: none; border-top: none; border-bottom-right-radius: 1.2vw; }
+
+    /* Floating logo */
+    .logo-watermark {
+      position: absolute;
+      right: 8.5vw;
+      bottom: calc(100vh - 7vh - 48.375vw + 1.5vh);
+      width: 8.5vw;
+      height: 8.5vw;
+      z-index: 15;
+      pointer-events: none;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    /* Lower third overlay */
+    .lower-third {
+      position: absolute;
+      left: 8.5vw;
+      bottom: calc(100vh - 7vh - 48.375vw + 1.5vh);
+      z-index: 15;
+      max-width: 45vw;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .lower-third-card {
+      background: rgba(0, 12, 26, 0.85);
+      border-left: 6px solid var(--duckie-yellow);
+      border-top: 1px solid rgba(255, 219, 88, 0.2);
+      border-right: 1px solid rgba(255, 219, 88, 0.1);
+      border-bottom: 1px solid rgba(255, 219, 88, 0.1);
+      border-radius: 0 12px 12px 0;
+      padding: 1.5vh 2vw;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+    }
+
+    .speaker-name {
+      font-size: 1.8vw;
+      font-weight: 800;
+      color: #ffffff;
+      text-shadow: 0 0 10px rgba(255, 219, 88, 0.3);
+      margin-bottom: 0.3vh;
+      letter-spacing: 0.05vw;
+    }
+
+    .speaker-title {
+      font-size: 1vw;
+      color: var(--duckie-blue-light);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1vw;
+    }
+
+    /* Decorative side pillars (using Podio / Pendon images) */
+    .pillar {
+      position: absolute;
+      top: 2vh;
+      width: 3vw;
+      height: 96vh;
+      z-index: 8;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(43, 120, 228, 0.3);
+      border: 1px solid rgba(43, 120, 228, 0.2);
+      opacity: 0;
+    }
+
+    .pillar-left {
+      left: 2vw;
+    }
+
+    .pillar-right {
+      right: 2vw;
+    }
+
+    .pillar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.8) contrast(1.1);
+    }
+
+    /* HUD watermark header */
+    .hud-header {
+      position: absolute;
+      top: 2vh;
+      left: 7.5vw;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 1vw;
+      opacity: 0.8;
+    }
+
+    .hud-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #ff3b30;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    .hud-text {
+      font-size: 0.8vw;
+      color: #ffffff;
+      font-weight: 700;
+      letter-spacing: 0.15vw;
+      text-transform: uppercase;
+      text-shadow: 0 0 8px rgba(255,255,255,0.4);
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.3; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 0.3; transform: scale(0.8); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene-container transparent-bg">
+    <!-- Dark background with video loop -->
+    <div class="masked-background">
+      <video class="bg-video" autoplay loop muted playsinline>
+        <source src="../../duckie day/video_loop.mp4" type="video/mp4">
+      </video>
+    </div>
+
+    <!-- Cutout hole for OBS webcam stream -->
+    <div class="cutout camera-cutout"></div>
+
+    <!-- Decorative Pillars on borders using Pendon Led and Podio -->
+    <div class="pillar pillar-left" id="pillar-l">
+      <img src="../../duckie day/Pendon Led.png" alt="Pendón Led">
+    </div>
+    <div class="pillar pillar-right" id="pillar-r">
+      <img src="../../duckie day/Podio (1).png" alt="Podio">
+    </div>
+
+    <!-- Glowing camera frame -->
+    <div class="frame-overlay camera-frame" id="cam-frame"></div>
+    
+    <!-- Yellow corner brackets -->
+    <div class="tech-bracket tick-tl"></div>
+    <div class="tech-bracket tick-tr"></div>
+    <div class="tech-bracket tick-bl"></div>
+    <div class="tech-bracket tick-br"></div>
+
+    <!-- HUD Watermark header -->
+    <div class="hud-header">
+      <div class="hud-dot"></div>
+      <div class="hud-text">DUCKIE DAY 2026 // LIVE STREAM</div>
+    </div>
+
+    <!-- Floating Logo watermark -->
+    <img src="../../duckie day/logo.png" class="logo-watermark" id="logo-watermark" alt="Duckie Day Logo">
+  </div>
+
+  <script src="../assets/vendor/gsap.min.js"></script>
+  <script src="../assets/js/utils.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. GSAP Entrance Animations
+      const tl = gsap.timeline({ delay: 0.3 });
+
+      // Animate pillars
+      tl.to('.pillar', {
+        opacity: 1,
+        duration: 1,
+        ease: 'power2.out',
+        stagger: 0.2
+      });
+
+      // Animate camera frame
+      tl.to('#cam-frame', {
+        opacity: 1,
+        scale: 1,
+        duration: 1,
+        ease: 'power3.out'
+      }, '-=0.5');
+
+      // Animate yellow corner brackets
+      tl.to('.tech-bracket', {
+        opacity: 1,
+        duration: 0.8,
+        ease: 'back.out(1.5)',
+        stagger: 0.1
+      }, '-=0.4');
+
+      // Animate logo watermark (slide up + slight rotation)
+      tl.to('#logo-watermark', {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'back.out(1.2)'
+      }, '-=0.5');
+
+      // Subtle float animation for the logo
+      gsap.to('#logo-watermark', {
+        y: -10,
+        duration: 3,
+        repeat: -1,
+        yoyo: true,
+        ease: 'power1.inOut',
+        delay: 2
+      });
+    });
+  </script>
+</body>
+</html>
